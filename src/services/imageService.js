@@ -21,11 +21,12 @@ function normalizeImage(documentSnapshot) {
   };
 }
 
-export async function fetchProductImages(productId) {
+export async function fetchProductImages(sr) {
   const imagesQuery = query(
     collection(db, PRODUCT_IMAGES_COLLECTION),
-    where('productId', '==', productId),
+    where('sr', '==', Number(sr)),
   );
+
   const snapshot = await getDocs(imagesQuery);
 
   return snapshot.docs
@@ -37,22 +38,24 @@ export async function fetchProductImages(productId) {
     });
 }
 
-export async function addProductImage(productId, imageUrl) {
-  const existingCount = await getProductImageCount(productId);
+export async function addProductImage(sr, imageUrl) {
+  const existingCount = await getProductImageCount(sr);
 
   if (existingCount >= MAX_PRODUCT_IMAGES) {
     throw new Error('This product already has 5 images.');
   }
 
+  const numericSr = Number(sr);
+
   const docRef = await addDoc(collection(db, PRODUCT_IMAGES_COLLECTION), {
-    productId,
+    sr: numericSr,
     imageUrl,
     createdAt: serverTimestamp(),
   });
 
   return {
     id: docRef.id,
-    productId,
+    sr: numericSr,
     imageUrl,
     createdAt: null,
   };
@@ -62,11 +65,12 @@ export async function deleteProductImage(imageDocId) {
   await deleteDoc(doc(db, PRODUCT_IMAGES_COLLECTION, imageDocId));
 }
 
-export async function getProductImageCount(productId) {
+export async function getProductImageCount(sr) {
   const imagesQuery = query(
     collection(db, PRODUCT_IMAGES_COLLECTION),
-    where('productId', '==', productId),
+    where('sr', '==', Number(sr)),
   );
+
   const snapshot = await getCountFromServer(imagesQuery);
 
   return snapshot.data().count;

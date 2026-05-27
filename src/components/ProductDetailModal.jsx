@@ -15,19 +15,19 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
   const isAdmin = localStorage.getItem(adminConfig.storageKey) === 'true';
 
   const loadImages = useCallback(async () => {
-    if (!product?.id) return;
+    if (!product?.sr) return;
 
     try {
       setIsLoadingImages(true);
       setImageError('');
-      const fetchedImages = await fetchProductImages(product.id);
+      const fetchedImages = await fetchProductImages(product.sr);
       setImages(fetchedImages);
     } catch (error) {
       setImageError(error.message || 'Unable to load images.');
     } finally {
       setIsLoadingImages(false);
     }
-  }, [product?.id]);
+  }, [product?.sr]);
 
   useEffect(() => {
     loadImages();
@@ -75,12 +75,10 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
           x
         </button>
 
-        {/* 1. Product Name */}
         <div className="detail-header">
           <h2 id="product-detail-title">{product.productName}</h2>
         </div>
 
-        {/* 2. Product Image Gallery */}
         {isLoadingImages ? <p className="admin-muted">Loading images...</p> : null}
         {imageError ? <p className="form-error">{imageError}</p> : null}
 
@@ -91,7 +89,6 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
           onDeleteImage={handleDeleteImage}
         />
 
-        {/* 3. Add Notes */}
         <section className="detail-section">
           <div className="section-heading">
             <h3>Notes</h3>
@@ -105,10 +102,8 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
           />
         </section>
 
-        {/* 4. Upload Images */}
-        <ImageUploader productId={product.id} imageCount={images.length} onUploaded={loadImages} />
+        <ImageUploader productId={product.sr} imageCount={images.length} onUploaded={loadImages} />
 
-        {/* 5. Restock Request */}
         <RestockForm product={product} />
       </div>
     </div>
