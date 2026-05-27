@@ -13,12 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: gh-pages
           fetch-depth: 0
-
-      - name: Sync branch state
-        run: |
-          git fetch origin main
-          git reset --hard origin/main
 
       - uses: actions/setup-node@v4
         with:
@@ -37,4 +33,4 @@ jobs:
           git config user.email "github-actions@github.com"
           git add public/products.json
           git diff --staged --quiet || git commit -m "Auto-update catalog"
-          git push origin HEAD:main
+          git push origin gh-pages
