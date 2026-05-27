@@ -1,10 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { createProduct, deleteProduct, updateProduct } from '../services/productService.js';
+import { createProduct, deleteProduct, peekNextSr, updateProduct } from '../services/productService.js';
 import { MATERIAL_OPTIONS, validateProductInput } from '../utils/csvProducts.js';
 
 const EMPTY_FORM = {
-  sr: '',
   productName: '',
   wPrice: '',
   rPrice: '',
@@ -14,7 +13,6 @@ const EMPTY_FORM = {
 
 function productToForm(product) {
   return {
-    sr: product.sr ?? '',
     productName: product.productName ?? '',
     wPrice: product.wPrice ?? '',
     rPrice: product.rPrice ?? '',
@@ -26,56 +24,89 @@ function productToForm(product) {
 export default function ProductEditor({ products, onProductsChanged }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
+  const [editingSr, setEditingSr] = useState(null);
   const [errors, setErrors] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [filter, setFilter] = useState('');
+  const [addOpen, setAddOpen] = useState(false);
+  // Live SR preview from Firestore counter
+  const [nextSrPreview, setNextSrPreview] = useState('…');
+
+  // Fetch the live counter whenever the accordion opens for a new product
+  useEffect(() => {
+    if (addOpen && !editingId) {
+      peekNextSr()
+        .then((n) => setNextSrPreview(n))
+        .catch(() => setNextSrPreview('?'));
+    }
+  }, [addOpen, editingId]);
 
   const filteredProducts = useMemo(() => {
     const clean = filter.trim().toLowerCase();
-
-    if (!clean) return products.slice(0, 80);
-
+    if (!clean) return [];
     return products
-      .filter((product) => {
-        return `${product.sr} ${product.productName} ${product.material}`.toLowerCase().includes(clean);
-      })
+      .filter((p) =>
+        `${p.sr} ${p.productName} ${p.material}`.toLowerCase().includes(clean),
+      )
       .slice(0, 80);
   }, [filter, products]);
 
   function updateField(field, value) {
-    setForm((current) => ({
-      ...current,
-      [field]: value,
-    }));
+    setForm((cur) => ({ ...cur, [field]: value }));
   }
 
   function resetForm() {
     setEditingId(null);
+    setEditingSr(null);
     setForm(EMPTY_FORM);
     setErrors([]);
   }
 
+  function handleStartEdit(product) {
+    setEditingId(product.id);
+    setEditingSr(product.sr);
+    setForm(productToForm(product));
+    setErrors([]);
+    setAddOpen(true);
+    setTimeout(() => {
+      document.querySelector('.product-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+
+  function handleToggleAccordion() {
+    if (addOpen) {
+      setAddOpen(false);
+      resetForm();
+    } else {
+      setAddOpen(true);
+    }
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
-    const validation = validateProductInput(form);
 
+    // For validation, supply a placeholder sr — createProduct ignores it and
+    // uses the atomic counter; updateProduct preserves the existing sr.
+    const srForValidation = editingId ? editingSr : 1;
+    const validation = validateProductInput({ ...form, sr: srForValidation });
     setErrors(validation.errors);
-
     if (validation.errors.length > 0) return;
 
     try {
       setIsSaving(true);
-
       if (editingId) {
-        await updateProduct(editingId, validation.product);
+        // Keep the original sr on update
+        await updateProduct(editingId, { ...validation.product, sr: editingSr });
         toast.success('Product updated');
       } else {
-        await createProduct(validation.product);
-        toast.success('Product created');
+        const created = await createProduct(validation.product);
+        toast.success(`Product created · SR ${created.sr}`);
       }
-
       resetForm();
+      setAddOpen(false);
       await onProductsChanged();
+      // Refresh sr preview for next add
+      peekNextSr().then(setNextSrPreview).catch(() => {});
     } catch (error) {
       toast.error(error.message || 'Product save failed');
     } finally {
@@ -84,8 +115,7 @@ export default function ProductEditor({ products, onProductsChanged }) {
   }
 
   async function handleDelete(product) {
-    const confirmed = window.confirm(`Delete product ${product.sr}. ${product.productName}?`);
-
+    const confirmed = window.confirm(`Delete "${product.productName}"? This cannot be undone.`);
     if (!confirmed) return;
 
     try {
@@ -104,96 +134,149 @@ export default function ProductEditor({ products, onProductsChanged }) {
   return (
     <section className="admin-card product-editor">
       <div className="section-heading">
-        <h3>Product CRUD</h3>
-        <span>{products.length} products</span>
+        <h3>Products</h3>
+        <span>{products.length} total</span>
       </div>
 
-      <form className="admin-form product-form" onSubmit={handleSubmit}>
-        <label>
-          SR
-          <input value={form.sr} inputMode="numeric" onChange={(event) => updateField('sr', event.target.value)} />
-        </label>
-        <label>
-          Product Name
-          <input value={form.productName} onChange={(event) => updateField('productName', event.target.value)} />
-        </label>
-        <label>
-          W Price
-          <input value={form.wPrice} inputMode="decimal" onChange={(event) => updateField('wPrice', event.target.value)} />
-        </label>
-        <label>
-          R Price
-          <input value={form.rPrice} inputMode="decimal" onChange={(event) => updateField('rPrice', event.target.value)} />
-        </label>
-        <label>
-          Price Type
-          <input value={form.priceType} onChange={(event) => updateField('priceType', event.target.value)} />
-        </label>
-        <label>
-          Material
-          <select value={form.material} onChange={(event) => updateField('material', event.target.value)}>
-            {MATERIAL_OPTIONS.map((material) => (
-              <option key={material} value={material}>
-                {material}
-              </option>
-            ))}
-          </select>
-        </label>
+      {/* ── Collapsible Add / Edit form ── */}
+      <div className="accordion">
+        <button
+          className={`accordion-trigger ${addOpen ? 'accordion-trigger-open' : ''}`}
+          type="button"
+          onClick={handleToggleAccordion}
+        >
+          <span>
+            {editingId ? `Editing SR ${editingSr}` : `Add Product · next SR: ${nextSrPreview}`}
+          </span>
+          <span className="accordion-chevron">{addOpen ? '▲' : '▼'}</span>
+        </button>
 
-        {errors.length > 0 ? (
-          <div className="form-error">
-            {errors.map((error) => (
-              <div key={error}>{error}</div>
-            ))}
+        {addOpen ? (
+          <div className="accordion-body">
+            <form className="admin-form product-form" onSubmit={handleSubmit}>
+              {editingId ? (
+                <label className="sr-readonly-label">
+                  SR No.
+                  <div className="sr-readonly-value">{editingSr}</div>
+                </label>
+              ) : (
+                <label className="sr-readonly-label">
+                  SR No. (auto-assigned)
+                  <div className="sr-readonly-value sr-auto">{nextSrPreview}</div>
+                </label>
+              )}
+
+              <label>
+                Product Name
+                <input
+                  value={form.productName}
+                  onChange={(e) => updateField('productName', e.target.value)}
+                />
+              </label>
+              <label>
+                W Price
+                <input
+                  value={form.wPrice}
+                  inputMode="decimal"
+                  onChange={(e) => updateField('wPrice', e.target.value)}
+                />
+              </label>
+              <label>
+                R Price
+                <input
+                  value={form.rPrice}
+                  inputMode="decimal"
+                  onChange={(e) => updateField('rPrice', e.target.value)}
+                />
+              </label>
+              <label>
+                Price Type
+                <input
+                  value={form.priceType}
+                  onChange={(e) => updateField('priceType', e.target.value)}
+                />
+              </label>
+              <label>
+                Material
+                <select
+                  value={form.material}
+                  onChange={(e) => updateField('material', e.target.value)}
+                >
+                  {MATERIAL_OPTIONS.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </label>
+
+              {errors.length > 0 ? (
+                <div className="form-error">
+                  {errors.map((e) => <div key={e}>{e}</div>)}
+                </div>
+              ) : null}
+
+              <div className="button-row">
+                <button className="primary-button" type="submit" disabled={isSaving}>
+                  {isSaving ? 'Saving…' : editingId ? 'Update Product' : 'Add Product'}
+                </button>
+                <button
+                  className="secondary-button"
+                  type="button"
+                  disabled={isSaving}
+                  onClick={() => { resetForm(); setAddOpen(false); }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         ) : null}
+      </div>
 
-        <div className="button-row">
-          <button className="primary-button" type="submit" disabled={isSaving}>
-            {editingId ? 'Update Product' : 'Add Product'}
-          </button>
-          {editingId ? (
-            <button className="secondary-button" type="button" disabled={isSaving} onClick={resetForm}>
-              Cancel Edit
-            </button>
-          ) : null}
-        </div>
-      </form>
-
+      {/* ── Search-on-demand product list ── */}
       <div className="admin-list-tools">
         <input
           value={filter}
-          placeholder="Filter products..."
-          onChange={(event) => setFilter(event.target.value)}
+          placeholder="Search products to edit or delete…"
+          onChange={(e) => setFilter(e.target.value)}
         />
       </div>
 
-      <div className="admin-product-list">
-        {filteredProducts.map((product) => (
-          <div className="admin-product-row" key={product.id}>
-            <div>
-              <strong>
-                {product.sr}. {product.productName}
-              </strong>
-              <span>
-                {product.wPrice ?? '-'} / {product.rPrice ?? '-'} · {product.priceType} · {product.material}
-              </span>
+      {filter.trim() && filteredProducts.length === 0 ? (
+        <p className="admin-muted">No products match "{filter}".</p>
+      ) : null}
+
+      {filteredProducts.length > 0 ? (
+        <div className="admin-product-list">
+          {filteredProducts.map((product) => (
+            <div className="admin-product-row" key={product.id}>
+              <div>
+                <strong>{product.sr}. {product.productName}</strong>
+                <span>
+                  W {product.wPrice ?? '-'} · R {product.rPrice ?? '-'} · {product.priceType} · {product.material}
+                </span>
+              </div>
+              <div className="row-actions">
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={() => handleStartEdit(product)}
+                  disabled={isSaving}
+                >
+                  Edit
+                </button>
+                <button
+                  className="danger-button"
+                  type="button"
+                  disabled={isSaving}
+                  onClick={() => handleDelete(product)}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-            <div className="row-actions">
-              <button className="secondary-button" type="button" onClick={() => {
-                setEditingId(product.id);
-                setForm(productToForm(product));
-                setErrors([]);
-              }} disabled={isSaving}>
-                Edit
-              </button>
-              <button className="danger-button" type="button" disabled={isSaving} onClick={() => handleDelete(product)}>
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }

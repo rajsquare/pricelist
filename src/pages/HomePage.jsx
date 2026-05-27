@@ -68,7 +68,6 @@ export default function HomePage() {
     <section className="catalog-page">
       <div className="search-container">
         <div className="catalog-header-row">
-          <h2>Pricelist</h2>
           <PriceToggle mode={priceMode} onModeChange={setPriceMode} />
         </div>
 

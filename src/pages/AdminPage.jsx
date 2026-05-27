@@ -9,7 +9,10 @@ import RestockQueue from '../components/RestockQueue.jsx';
 import { adminConfig } from '../constants/config.js';
 import { fetchAuditLogs } from '../services/auditService.js';
 import { fetchProducts } from '../services/productService.js';
-import { fetchRestockRequests } from '../services/restockService.js';
+import {
+  fetchActiveRestockRequests,
+  fetchCompletedRestockRequests,
+} from '../services/restockService.js';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -17,7 +20,8 @@ export default function AdminPage() {
   );
   const [products, setProducts] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
-  const [restockRequests, setRestockRequests] = useState([]);
+  const [activeRequests, setActiveRequests] = useState([]);
+  const [completedRequests, setCompletedRequests] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [isLoadingAudit, setIsLoadingAudit] = useState(false);
   const [isLoadingRestock, setIsLoadingRestock] = useState(false);
@@ -26,8 +30,7 @@ export default function AdminPage() {
   const loadProducts = useCallback(async () => {
     try {
       setIsLoadingProducts(true);
-      const fetchedProducts = await fetchProducts();
-      setProducts(fetchedProducts);
+      setProducts(await fetchProducts());
     } finally {
       setIsLoadingProducts(false);
     }
@@ -36,8 +39,7 @@ export default function AdminPage() {
   const loadAuditLogs = useCallback(async () => {
     try {
       setIsLoadingAudit(true);
-      const fetchedLogs = await fetchAuditLogs();
-      setAuditLogs(fetchedLogs);
+      setAuditLogs(await fetchAuditLogs());
     } finally {
       setIsLoadingAudit(false);
     }
@@ -46,8 +48,12 @@ export default function AdminPage() {
   const loadRestockRequests = useCallback(async () => {
     try {
       setIsLoadingRestock(true);
-      const fetchedRequests = await fetchRestockRequests();
-      setRestockRequests(fetchedRequests);
+      const [active, completed] = await Promise.all([
+        fetchActiveRestockRequests(),
+        fetchCompletedRestockRequests(),
+      ]);
+      setActiveRequests(active);
+      setCompletedRequests(completed);
     } finally {
       setIsLoadingRestock(false);
     }
@@ -55,7 +61,6 @@ export default function AdminPage() {
 
   const refreshAdminData = useCallback(async () => {
     setLoadError('');
-
     try {
       await Promise.all([loadProducts(), loadAuditLogs(), loadRestockRequests()]);
     } catch (error) {
@@ -64,9 +69,7 @@ export default function AdminPage() {
   }, [loadAuditLogs, loadProducts, loadRestockRequests]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      refreshAdminData();
-    }
+    if (isAuthenticated) refreshAdminData();
   }, [isAuthenticated, refreshAdminData]);
 
   async function handleProductsChanged() {
@@ -78,7 +81,8 @@ export default function AdminPage() {
     setIsAuthenticated(false);
     setProducts([]);
     setAuditLogs([]);
-    setRestockRequests([]);
+    setActiveRequests([]);
+    setCompletedRequests([]);
     toast.success('Logged out');
   }
 
@@ -90,8 +94,8 @@ export default function AdminPage() {
     <section className="admin-page">
       <div className="admin-toolbar">
         <div>
-          <h2>Admin Dashboard</h2>
-          <p>Frontend-only admin session</p>
+          <h2>Admin</h2>
+          <p>Inventory management</p>
         </div>
         <button className="danger-button" type="button" onClick={handleLogout}>
           Logout
@@ -99,7 +103,11 @@ export default function AdminPage() {
       </div>
 
       {loadError ? <div className="form-error">{loadError}</div> : null}
-      {isLoadingProducts ? <div className="admin-card admin-muted">Loading products...</div> : null}
+      {isLoadingProducts ? (
+        <div className="admin-card admin-muted" style={{ padding: '14px' }}>
+          Loading products...
+        </div>
+      ) : null}
 
       <ProductEditor products={products} onProductsChanged={handleProductsChanged} />
 
@@ -109,7 +117,13 @@ export default function AdminPage() {
       </div>
 
       <AuditTable logs={auditLogs} isLoading={isLoadingAudit} />
-      <RestockQueue requests={restockRequests} isLoading={isLoadingRestock} />
+
+      <RestockQueue
+        activeRequests={activeRequests}
+        completedRequests={completedRequests}
+        isLoading={isLoadingRestock}
+        onChanged={loadRestockRequests}
+      />
     </section>
   );
 }

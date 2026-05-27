@@ -131,12 +131,6 @@ textarea {
   margin-bottom: 10px;
 }
 
-.catalog-header-row h2 {
-  margin: 0;
-  color: #111827;
-  font-size: 28px;
-  line-height: 1.1;
-}
 
 .price-toggle {
   min-width: 42px;
@@ -845,4 +839,303 @@ textarea {
   .detail-header-OLD {
     padding-right: 38px;
   }
+}
+
+/* ── Accordion (Add Product) ─────────────────────────────── */
+.accordion {
+  border: 1px solid #e0e5ed;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.accordion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 13px 14px;
+  border: 0;
+  background: #f8f9fb;
+  color: #2f3f64;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.accordion-trigger:hover {
+  background: #eef1f6;
+}
+
+.accordion-trigger-open {
+  background: #2f3f64;
+  color: #ffffff;
+}
+
+.accordion-trigger-open:hover {
+  background: #263554;
+}
+
+.accordion-chevron {
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.accordion-body {
+  padding: 14px;
+  border-top: 1px solid #e0e5ed;
+  background: #ffffff;
+}
+
+/* SR readonly display */
+.sr-readonly-label {
+  display: grid;
+  gap: 6px;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sr-readonly-value {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 10px 11px;
+  border: 1px solid #e0e5ed;
+  border-radius: 8px;
+  background: #f1f3f6;
+  color: #344054;
+  font-weight: 800;
+}
+
+.sr-auto {
+  color: #667085;
+}
+
+/* ── Audit Cards ─────────────────────────────────────────── */
+.audit-list {
+  display: grid;
+  gap: 10px;
+  max-height: 520px;
+  overflow: auto;
+}
+
+.audit-card {
+  border: 1px solid #e0e5ed;
+  border-radius: 8px;
+  background: #fbfcfe;
+  overflow: hidden;
+}
+
+.audit-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f1f3f6;
+  border-bottom: 1px solid #e0e5ed;
+}
+
+.audit-action-badge {
+  font-size: 12px;
+  font-weight: 800;
+  color: #2f3f64;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.audit-card-product--updated .audit-action-badge { color: #b45309; }
+.audit-card-product--created .audit-action-badge { color: #166534; }
+.audit-card-product--deleted .audit-action-badge { color: #b42318; }
+
+.audit-timestamp {
+  color: #667085;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.audit-card-body {
+  padding: 12px;
+}
+
+.audit-diff {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  gap: 10px;
+}
+
+.audit-diff-arrow {
+  padding-top: 28px;
+  color: #667085;
+  font-size: 18px;
+  text-align: center;
+}
+
+.audit-snapshot {
+  display: grid;
+  gap: 4px;
+}
+
+.audit-snapshot-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #667085;
+  margin-bottom: 4px;
+}
+
+.audit-snapshot-row {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.audit-field {
+  color: #667085;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.audit-value {
+  color: #111827;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+/* ── Restock Queue ───────────────────────────────────────── */
+.restock-list {
+  display: grid;
+  gap: 10px;
+}
+
+.restock-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #e0e5ed;
+}
+
+.restock-item-active {
+  background: #fffdf5;
+  border-color: #f0d080;
+}
+
+.restock-item-completed {
+  background: #fbfcfe;
+  border-color: #e0e5ed;
+  opacity: 0.8;
+}
+
+.restock-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.restock-sr-name {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.restock-sr {
+  font-size: 12px;
+  font-weight: 800;
+  color: #667085;
+  white-space: nowrap;
+}
+
+.restock-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.restock-note {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #2f3f64;
+  line-height: 1.5;
+  background: #eef2fb;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border-left: 3px solid #2f3f64;
+}
+
+.restock-note-muted {
+  background: #f1f3f6;
+  color: #667085;
+  border-left-color: #c0c8d8;
+}
+
+.restock-timestamps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.restock-timestamp {
+  font-size: 12px;
+  color: #667085;
+}
+
+.restock-complete-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: 2px solid #2f3f64;
+  border-radius: 50%;
+  background: transparent;
+  color: #2f3f64;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.restock-complete-btn:hover {
+  background: #2f3f64;
+  color: #ffffff;
+}
+
+.restock-complete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.restock-delete-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e0e5ed;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #667085;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.restock-delete-btn:hover {
+  border-color: #d65353;
+  color: #d65353;
+}
+
+.restock-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
