@@ -12,6 +12,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync branch state
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
 
       - uses: actions/setup-node@v4
         with:
@@ -28,7 +35,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git pull --rebase origin main
           git add public/products.json
           git diff --staged --quiet || git commit -m "Auto-update catalog"
-          git push origin main
+          git push origin HEAD:main
