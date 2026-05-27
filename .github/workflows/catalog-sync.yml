@@ -3,17 +3,17 @@ name: Catalog Sync
 on:
   workflow_dispatch:
 
-jobs:
-  sync:
-    runs-on: ubuntu-latest
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
-    permissions:
-      contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -21,21 +21,27 @@ jobs:
 
       - run: npm ci
 
-      - name: Generate catalog
+      - name: Generate catalog JSON
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: node scripts/syncProducts.mjs
 
-      - name: Preserve generated file
-        run: cp public/products.json /tmp/products.json
+      - name: Build site
+        run: npm run build
 
-      - name: Push products.json to gh-pages
-        run: |
-          git fetch origin gh-pages
-          git checkout gh-pages
-          cp /tmp/products.json products.json
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add products.json
-          git diff --staged --quiet || git commit -m "Auto-update catalog"
-          git push origin gh-pages
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
