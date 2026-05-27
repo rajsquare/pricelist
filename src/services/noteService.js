@@ -1,29 +1,22 @@
 import {
-  collection,
-  getDocs,
-  query,
+  doc,
+  getDoc,
   serverTimestamp,
   setDoc,
-  doc,
-  where,
 } from 'firebase/firestore';
 import { db } from './firebase.js';
 
 const PRODUCT_NOTES_COLLECTION = 'productNotes';
 
 export async function fetchProductNote(sr) {
-  const notesQuery = query(
-    collection(db, PRODUCT_NOTES_COLLECTION),
-    where('sr', '==', Number(sr)),
-  );
+  const docRef = doc(db, PRODUCT_NOTES_COLLECTION, String(sr));
+  const snapshot = await getDoc(docRef);
 
-  const snapshot = await getDocs(notesQuery);
-
-  if (snapshot.empty) {
+  if (!snapshot.exists()) {
     return '';
   }
 
-  return String(snapshot.docs[0].data().note ?? '');
+  return String(snapshot.data().note ?? '');
 }
 
 export async function saveProductNote(sr, note) {
