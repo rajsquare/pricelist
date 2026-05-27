@@ -19,18 +19,21 @@ jobs:
         with:
           node-version: 20
 
-      - run: npm install
+      - run: npm ci
 
       - name: Generate catalog
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: node scripts/syncProducts.mjs
 
+      - name: Preserve generated file
+        run: cp public/products.json /tmp/products.json
+
       - name: Push products.json to gh-pages
         run: |
           git fetch origin gh-pages
           git checkout gh-pages
-          cp public/products.json products.json
+          cp /tmp/products.json products.json
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add products.json
