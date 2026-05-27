@@ -13,7 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: gh-pages
           fetch-depth: 0
 
       - uses: actions/setup-node@v4
@@ -27,10 +26,13 @@ jobs:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: node scripts/syncProducts.mjs
 
-      - name: Commit catalog
+      - name: Push products.json to gh-pages
         run: |
+          git fetch origin gh-pages
+          git checkout gh-pages
+          cp public/products.json products.json
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add public/products.json
+          git add products.json
           git diff --staged --quiet || git commit -m "Auto-update catalog"
           git push origin gh-pages
