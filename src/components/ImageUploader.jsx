@@ -5,7 +5,7 @@ import { uploadProductImage, validateImageFile } from '../utils/cloudinaryUpload
 
 const MAX_IMAGES = 5;
 
-export default function ImageUploader({ productId, imageCount, onUploaded }) {
+export default function ImageUploader({ sr, imageCount, onUploaded }) {
   const [error, setError] = useState('');
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -32,14 +32,17 @@ export default function ImageUploader({ productId, imageCount, onUploaded }) {
 
     try {
       setIsUploading(true);
-      const latestImageCount = await getProductImageCount(productId);
+
+      const latestImageCount = await getProductImageCount(sr);
 
       if (latestImageCount >= MAX_IMAGES) {
         throw new Error('This product already has 5 images.');
       }
 
       const imageUrl = await uploadProductImage(file, setProgress);
-      await addProductImage(productId, imageUrl);
+
+      await addProductImage(sr, imageUrl);
+
       toast.success('Image uploaded');
       await onUploaded();
     } catch (uploadError) {
@@ -57,6 +60,7 @@ export default function ImageUploader({ productId, imageCount, onUploaded }) {
         <h3>Upload Image</h3>
         <span>{imageCount}/5 images</span>
       </div>
+
       <label className="file-control">
         Choose image
         <input
@@ -66,15 +70,20 @@ export default function ImageUploader({ productId, imageCount, onUploaded }) {
           onChange={handleFileChange}
         />
       </label>
+
       {imageCount >= MAX_IMAGES ? (
-        <p className="admin-muted">Image limit reached. Remove an image before uploading another.</p>
+        <p className="admin-muted">
+          Image limit reached. Remove an image before uploading another.
+        </p>
       ) : null}
+
       {isUploading ? (
         <div className="upload-progress">
           <div style={{ width: `${progress}%` }} />
           <span>{progress}%</span>
         </div>
       ) : null}
+
       {error ? <p className="form-error">{error}</p> : null}
     </section>
   );

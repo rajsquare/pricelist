@@ -102,7 +102,7 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
           />
         </section>
 
-        <ImageUploader productId={product.sr} imageCount={images.length} onUploaded={loadImages} />
+        <ImageUploader sr={product.sr} imageCount={images.length} onUploaded={loadImages} />
 
         <RestockForm product={product} />
       </div>
