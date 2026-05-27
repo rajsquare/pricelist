@@ -27,6 +27,8 @@ async function syncProducts() {
     })
     .sort((a, b) => a.sr - b.sr);
 
+  fs.mkdirSync('./public', { recursive: true });
+
   fs.writeFileSync(
     './public/products.json',
     JSON.stringify(products, null, 2),
