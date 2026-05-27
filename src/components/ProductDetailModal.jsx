@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { adminConfig } from '../constants/config.js';
 import { deleteProductImage, fetchProductImages } from '../services/imageService.js';
+import { fetchProductNote, saveProductNote } from '../services/noteService.js';
 import ImageUploader from './ImageUploader.jsx';
 import ProductGallery from './ProductGallery.jsx';
 import RestockForm from './RestockForm.jsx';
@@ -12,6 +13,8 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
   const [imageError, setImageError] = useState('');
   const [deletingImageId, setDeletingImageId] = useState('');
   const [note, setNote] = useState('');
+  const [isSavingNote, setIsSavingNote] = useState(false);
+
   const isAdmin = localStorage.getItem(adminConfig.storageKey) === 'true';
 
   const loadImages = useCallback(async () => {
@@ -29,9 +32,21 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
     }
   }, [product?.sr]);
 
+  const loadNote = useCallback(async () => {
+    if (!product?.sr) return;
+
+    try {
+      const existingNote = await fetchProductNote(product.sr);
+      setNote(existingNote);
+    } catch {
+      setNote('');
+    }
+  }, [product?.sr]);
+
   useEffect(() => {
     loadImages();
-  }, [loadImages]);
+    loadNote();
+  }, [loadImages, loadNote]);
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -62,6 +77,22 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
     }
   }
 
+  async function handleSaveNote() {
+    const confirmed = window.confirm('Save changes to this product note?');
+
+    if (!confirmed) return;
+
+    try {
+      setIsSavingNote(true);
+      await saveProductNote(product.sr, note);
+      toast.success('Note saved');
+    } catch {
+      toast.error('Failed to save note');
+    } finally {
+      setIsSavingNote(false);
+    }
+  }
+
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
       <div
@@ -71,7 +102,12 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
         aria-labelledby="product-detail-title"
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <button className="modal-close" type="button" aria-label="Close product detail" onClick={onClose}>
+        <button
+          className="modal-close"
+          type="button"
+          aria-label="Close product detail"
+          onClick={onClose}
+        >
           x
         </button>
 
@@ -93,13 +129,23 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
           <div className="section-heading">
             <h3>Notes</h3>
           </div>
+
           <textarea
             className="detail-notes-input"
             value={note}
             rows="3"
-            placeholder="Add a note about this product..."
+            placeholder="Add product notes..."
             onChange={(event) => setNote(event.target.value)}
           />
+
+          <button
+            type="button"
+            className="admin-button"
+            disabled={isSavingNote}
+            onClick={handleSaveNote}
+          >
+            {isSavingNote ? 'Saving...' : 'Save Note'}
+          </button>
         </section>
 
         <ImageUploader sr={product.sr} imageCount={images.length} onUploaded={loadImages} />
