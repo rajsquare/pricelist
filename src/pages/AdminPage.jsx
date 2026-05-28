@@ -18,13 +18,16 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     () => localStorage.getItem(adminConfig.storageKey) === 'true',
   );
+
   const [products, setProducts] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [activeRequests, setActiveRequests] = useState([]);
   const [completedRequests, setCompletedRequests] = useState([]);
+
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [isLoadingAudit, setIsLoadingAudit] = useState(false);
   const [isLoadingRestock, setIsLoadingRestock] = useState(false);
+
   const [loadError, setLoadError] = useState('');
 
   const loadProducts = useCallback(async () => {
@@ -48,10 +51,12 @@ export default function AdminPage() {
   const loadRestockRequests = useCallback(async () => {
     try {
       setIsLoadingRestock(true);
+
       const [active, completed] = await Promise.all([
         fetchActiveRestockRequests(),
         fetchCompletedRestockRequests(),
       ]);
+
       setActiveRequests(active);
       setCompletedRequests(completed);
     } finally {
@@ -61,33 +66,53 @@ export default function AdminPage() {
 
   const refreshAdminData = useCallback(async () => {
     setLoadError('');
+
     try {
-      await Promise.all([loadProducts(), loadAuditLogs(), loadRestockRequests()]);
+      await Promise.all([
+        loadProducts(),
+        loadAuditLogs(),
+        loadRestockRequests(),
+      ]);
     } catch (error) {
       setLoadError(error.message || 'Unable to load admin data.');
     }
-  }, [loadAuditLogs, loadProducts, loadRestockRequests]);
+  }, [
+    loadAuditLogs,
+    loadProducts,
+    loadRestockRequests,
+  ]);
 
   useEffect(() => {
-    if (isAuthenticated) refreshAdminData();
+    if (isAuthenticated) {
+      refreshAdminData();
+    }
   }, [isAuthenticated, refreshAdminData]);
 
   async function handleProductsChanged() {
-    await Promise.all([loadProducts(), loadAuditLogs()]);
+    await Promise.all([
+      loadProducts(),
+      loadAuditLogs(),
+    ]);
   }
 
   function handleLogout() {
     localStorage.removeItem(adminConfig.storageKey);
+
     setIsAuthenticated(false);
     setProducts([]);
     setAuditLogs([]);
     setActiveRequests([]);
     setCompletedRequests([]);
+
     toast.success('Logged out');
   }
 
   if (!isAuthenticated) {
-    return <PasswordGate onAuthenticated={() => setIsAuthenticated(true)} />;
+    return (
+      <PasswordGate
+        onAuthenticated={() => setIsAuthenticated(true)}
+      />
+    );
   }
 
   return (
@@ -97,26 +122,45 @@ export default function AdminPage() {
           <h2>Admin</h2>
           <p>Inventory management</p>
         </div>
-        <button className="danger-button" type="button" onClick={handleLogout}>
+
+        <button
+          className="danger-button"
+          type="button"
+          onClick={handleLogout}
+        >
           Logout
         </button>
       </div>
 
-      {loadError ? <div className="form-error">{loadError}</div> : null}
+      {loadError ? (
+        <div className="form-error">
+          {loadError}
+        </div>
+      ) : null}
+
       {isLoadingProducts ? (
-        <div className="admin-card admin-muted" style={{ padding: '14px' }}>
+        <div
+          className="admin-card admin-muted"
+          style={{ padding: '14px' }}
+        >
           Loading products...
         </div>
       ) : null}
 
-      <ProductEditor products={products} onProductsChanged={handleProductsChanged} />
+      <ProductEditor
+        products={products}
+        onProductsChanged={handleProductsChanged}
+      />
 
       <div className="admin-grid">
         <CSVImporter onImported={handleProductsChanged} />
         <CSVExporter />
       </div>
 
-      <AuditTable logs={auditLogs} isLoading={isLoadingAudit} />
+      <AuditTable
+        logs={auditLogs}
+        isLoading={isLoadingAudit}
+      />
 
       <RestockQueue
         activeRequests={activeRequests}
