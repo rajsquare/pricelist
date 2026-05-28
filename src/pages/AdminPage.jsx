@@ -6,6 +6,7 @@ import CSVImporter from '../components/CSVImporter.jsx';
 import PasswordGate from '../components/PasswordGate.jsx';
 import ProductEditor from '../components/ProductEditor.jsx';
 import RestockQueue from '../components/RestockQueue.jsx';
+import PriceRequestQueue from '../components/PriceRequestQueue.jsx';
 import { adminConfig } from '../constants/config.js';
 import { fetchAuditLogs } from '../services/auditService.js';
 import { fetchProducts } from '../services/productService.js';
@@ -13,6 +14,10 @@ import {
   fetchActiveRestockRequests,
   fetchCompletedRestockRequests,
 } from '../services/restockService.js';
+
+import {
+  fetchPendingPriceRequests,
+} from '../services/priceRequestService.js';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -23,6 +28,7 @@ export default function AdminPage() {
   const [auditLogs, setAuditLogs] = useState([]);
   const [activeRequests, setActiveRequests] = useState([]);
   const [completedRequests, setCompletedRequests] = useState([]);
+  const [priceRequests, setPriceRequests] = useState([]);
 
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [isLoadingAudit, setIsLoadingAudit] = useState(false);
@@ -64,6 +70,11 @@ export default function AdminPage() {
     }
   }, []);
 
+  const loadPriceRequests = useCallback(async () => {
+    const requests = await fetchPendingPriceRequests();
+    setPriceRequests(requests);
+  }, []);
+
   const refreshAdminData = useCallback(async () => {
     setLoadError('');
 
@@ -72,6 +83,7 @@ export default function AdminPage() {
         loadProducts(),
         loadAuditLogs(),
         loadRestockRequests(),
+        loadPriceRequests(),
       ]);
     } catch (error) {
       setLoadError(error.message || 'Unable to load admin data.');
@@ -160,6 +172,11 @@ export default function AdminPage() {
       <AuditTable
         logs={auditLogs}
         isLoading={isLoadingAudit}
+      />
+
+      <PriceRequestQueue
+        requests={priceRequests}
+        onChanged={loadPriceRequests}
       />
 
       <RestockQueue

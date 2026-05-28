@@ -6,6 +6,7 @@ import { fetchProductNote, saveProductNote } from '../services/noteService.js';
 import ImageUploader from './ImageUploader.jsx';
 import ProductGallery from './ProductGallery.jsx';
 import RestockForm from './RestockForm.jsx';
+import RequestPriceChangeModal from './RequestPriceChangeModal.jsx';
 
 export default function ProductDetailModal({ product, priceMode, onClose }) {
   const [images, setImages] = useState([]);
@@ -14,6 +15,7 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
   const [deletingImageId, setDeletingImageId] = useState('');
   const [note, setNote] = useState('');
   const [isSavingNote, setIsSavingNote] = useState(false);
+  const [showPriceRequestModal, setShowPriceRequestModal] = useState(false);
 
   const isAdmin = localStorage.getItem(adminConfig.storageKey) === 'true';
 
@@ -150,7 +152,23 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
 
         <ImageUploader sr={product.sr} imageCount={images.length} onUploaded={loadImages} />
 
+        <button
+          type="button"
+          className="admin-button"
+          style={{ marginBottom: "12px" }}
+          onClick={() => setShowPriceRequestModal(true)}
+        >
+          Request Price Change
+        </button>
+
         <RestockForm product={product} />
+
+        {showPriceRequestModal ? (
+          <RequestPriceChangeModal
+            product={product}
+            onClose={() => setShowPriceRequestModal(false)}
+          />
+        ) : null}
       </div>
     </div>
   );
