@@ -110,19 +110,19 @@ export default function AdminPage() {
           return next;
         });
         setAuditLogs((prev) => [
-          { id: 'local-' + Date.now(), action: 'PRODUCT_CREATED', before: null, after: product, createdAt: { toMillis: () => Date.now() } },
+          { id: 'local-' + Date.now(), action: 'PRODUCT_CREATED', before: null, after: product, createdAt: { toMillis: () => Date.now(), toDate: () => new Date() } },
           ...prev,
         ]);
       } else if (action === 'updated') {
         setProducts((prev) => prev.map((p) => (p.id === product.id ? product : p)));
         setAuditLogs((prev) => [
-          { id: 'local-' + Date.now(), action: 'PRODUCT_UPDATED', before: null, after: product, createdAt: { toMillis: () => Date.now() } },
+          { id: 'local-' + Date.now(), action: 'PRODUCT_UPDATED', before: null, after: product, createdAt: { toMillis: () => Date.now(), toDate: () => new Date() } },
           ...prev,
         ]);
       } else if (action === 'deleted') {
         setProducts((prev) => prev.filter((p) => p.id !== product.id));
         setAuditLogs((prev) => [
-          { id: 'local-' + Date.now(), action: 'PRODUCT_DELETED', before: product, after: null, createdAt: { toMillis: () => Date.now() } },
+          { id: 'local-' + Date.now(), action: 'PRODUCT_DELETED', before: product, after: null, createdAt: { toMillis: () => Date.now(), toDate: () => new Date() } },
           ...prev,
         ]);
       }

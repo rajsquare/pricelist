@@ -1,14 +1,15 @@
-import { addDoc, collection, serverTimestamp, getDocs, query, where, updateDoc, doc, getDoc, setDoc } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
 import { db } from './firebase.js';
 import { logAuditEvent } from './auditService.js';
+import { updateCatalogEntryPrices } from './productService.js';
 
 const requestsCollection = collection(db, 'priceChangeRequests');
-const CATALOG_DOC = 'catalog/current';
 
 export async function submitPriceChangeRequest({ product, requestedWPrice, requestedRPrice, requestedBy, note }) {
   await addDoc(requestsCollection, {
     productId: product.id,
     productName: product.productName,
+    sr: product.sr,
     currentWPrice: product.wPrice || 0,
     currentRPrice: product.rPrice || 0,
     requestedWPrice: Number(requestedWPrice),
@@ -42,22 +43,7 @@ export async function approvePriceRequest(request) {
   });
 
   // Incremental catalog update
-  const catalogRef = doc(db, CATALOG_DOC);
-  const catalogSnap = await getDoc(catalogRef);
-  if (catalogSnap.exists()) {
-    const products = catalogSnap.data().products || [];
-    const index = products.findIndex(
-      (p) => p.sr === request.sr || p.productName === request.productName,
-    );
-    if (index >= 0) {
-      products[index] = {
-        ...products[index],
-        wPrice: Number(request.requestedWPrice),
-        rPrice: Number(request.requestedRPrice),
-      };
-      await setDoc(catalogRef, { products, updatedAt: Date.now() });
-    }
-  }
+  await updateCatalogEntryPrices(request.sr, request.productName, Number(request.requestedWPrice), Number(request.requestedRPrice));
 
   await updateDoc(doc(db, 'priceChangeRequests', request.id), {
     status: 'approved',

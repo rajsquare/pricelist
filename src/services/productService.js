@@ -134,6 +134,7 @@ export async function updateCatalogEntry(updatedProduct) {
   }
 
   await setDoc(catalogRef, { products, updatedAt: Date.now() });
+  try { localStorage.removeItem(CACHE_KEY); } catch {}
 }
 
 export async function removeCatalogEntry(sr) {
@@ -146,6 +147,26 @@ export async function removeCatalogEntry(sr) {
 
   products = products.filter((p) => p.sr !== sr);
   await setDoc(catalogRef, { products, updatedAt: Date.now() });
+  try { localStorage.removeItem(CACHE_KEY); } catch {}
+}
+
+export async function updateCatalogEntryPrices(sr, productName, wPrice, rPrice) {
+  const catalogRef = doc(db, CATALOG_DOC);
+  const snap = await getDoc(catalogRef);
+  if (!snap.exists()) return;
+  const products = snap.data().products || [];
+  const index = products.findIndex(
+    (p) => p.sr === sr || p.productName === productName,
+  );
+  if (index >= 0) {
+    products[index] = {
+      ...products[index],
+      wPrice,
+      rPrice,
+    };
+    await setDoc(catalogRef, { products, updatedAt: Date.now() });
+    try { localStorage.removeItem(CACHE_KEY); } catch {}
+  }
 }
 
 // ── SR Counter ───────────────────────────────────────────────────────────────
