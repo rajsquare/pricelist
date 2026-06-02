@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { createProduct, deleteProduct, peekNextSr, updateProduct } from '../services/productService.js';
+import { createProduct, deleteProduct, peekNextSr, peekNextSrCached, updateProduct } from '../services/productService.js';
 import { MATERIAL_OPTIONS, validateProductInput } from '../utils/csvProducts.js';
 
 const EMPTY_FORM = {
@@ -35,7 +35,7 @@ export default function ProductEditor({ products, onProductsChanged }) {
   // Fetch the live counter whenever the accordion opens for a new product
   useEffect(() => {
     if (addOpen && !editingId) {
-      peekNextSr()
+      peekNextSrCached()
         .then((n) => setNextSrPreview(n))
         .catch(() => setNextSrPreview('?'));
     }
@@ -98,13 +98,16 @@ export default function ProductEditor({ products, onProductsChanged }) {
         // Keep the original sr on update
         await updateProduct(editingId, { ...validation.product, sr: editingSr });
         toast.success('Product updated');
+        resetForm();
+        setAddOpen(false);
+        await onProductsChanged({ action: 'updated', product: { id: editingId, ...validation.product, sr: editingSr } });
       } else {
         const created = await createProduct(validation.product);
         toast.success(`Product created · SR ${created.sr}`);
+        resetForm();
+        setAddOpen(false);
+        await onProductsChanged({ action: 'created', product: created });
       }
-      resetForm();
-      setAddOpen(false);
-      await onProductsChanged();
       // Refresh sr preview for next add
       peekNextSr().then(setNextSrPreview).catch(() => {});
     } catch (error) {
@@ -123,7 +126,7 @@ export default function ProductEditor({ products, onProductsChanged }) {
       await deleteProduct(product.id);
       toast.success('Product deleted');
       if (editingId === product.id) resetForm();
-      await onProductsChanged();
+      await onProductsChanged({ action: 'deleted', product });
     } catch (error) {
       toast.error(error.message || 'Product delete failed');
     } finally {

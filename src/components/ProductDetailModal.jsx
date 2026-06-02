@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { adminConfig } from '../constants/config.js';
-import { deleteProductImage, fetchProductImages } from '../services/imageService.js';
-import { fetchProductNote, saveProductNote } from '../services/noteService.js';
+import { deleteProductImage, fetchProductImagesCached, invalidateImageCache } from '../services/imageService.js';
+import { fetchProductNoteCached, invalidateNoteCache, saveProductNote } from '../services/noteService.js';
 import ImageUploader from './ImageUploader.jsx';
 import ProductGallery from './ProductGallery.jsx';
 import RestockForm from './RestockForm.jsx';
@@ -25,7 +25,7 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
     try {
       setIsLoadingImages(true);
       setImageError('');
-      const fetchedImages = await fetchProductImages(product.sr);
+      const fetchedImages = await fetchProductImagesCached(product.sr);
       setImages(fetchedImages);
     } catch (error) {
       setImageError(error.message || 'Unable to load images.');
@@ -38,7 +38,7 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
     if (!product?.sr) return;
 
     try {
-      const existingNote = await fetchProductNote(product.sr);
+      const existingNote = await fetchProductNoteCached(product.sr);
       setNote(existingNote);
     } catch {
       setNote('');
@@ -71,6 +71,7 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
       setDeletingImageId(image.id);
       await deleteProductImage(image.id);
       toast.success('Image removed');
+      invalidateImageCache(product.sr);
       await loadImages();
     } catch (error) {
       toast.error(error.message || 'Image delete failed');
@@ -88,6 +89,7 @@ export default function ProductDetailModal({ product, priceMode, onClose }) {
       setIsSavingNote(true);
       await saveProductNote(product.sr, note);
       toast.success('Note saved');
+      invalidateNoteCache(product.sr);
     } catch {
       toast.error('Failed to save note');
     } finally {
