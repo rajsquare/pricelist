@@ -1,0 +1,39 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Implement all database read optimizations: catalog snapshot for HomePage, incremental catalog updates, optimistic updates in AdminPage, CSVExporter using parent state, session caches for images/notes, price approval fix, SR cache, and conditional image count validation",
+  "status": "completed",
+  "steps": [
+    "1. In src/services/productService.js: Add `fetchCatalog()` that reads doc('catalog/current') and returns its .products array. Add `fetchCatalogWithCache()` that checks localStorage key 'pricelist_catalog_cache' with 5-minute TTL (300000ms), falls back to fetchCatalog(), stores result in localStorage with a timestamp. Export both functions.",
+    "2. In src/pages/HomePage.jsx: Replace `fetchProducts()` import with `fetchCatalogWithCache` from productService. In the loadProducts() useEffect, call `fetchCatalogWithCache()` instead of `fetchProducts()`.",
+    "3. In src/services/productService.js: Add `updateCatalogEntry(updatedProduct)` that reads the catalog doc, finds/replaces entry by `sr`, writes back (or appends+sorts if not found). Add `removeCatalogEntry(sr)` that reads catalog doc, filters out the entry by sr, writes back. Both maintain the {products: [...], updatedAt: Date.now()} structure.",
+    "4. In src/services/productService.js: In createProduct(), replace `await rebuildCatalogSnapshot()` with `await updateCatalogEntry(created)` (pass without id field: {sr, productName, wPrice, rPrice, priceType, material}). In updateProduct(), replace `await rebuildCatalogSnapshot()` with `await updateCatalogEntry({ sr: after.sr, productName: after.productName, wPrice: after.wPrice, rPrice: after.rPrice, priceType: after.priceType, material: after.material })`. In deleteProduct(), replace `await rebuildCatalogSnapshot()` with `await removeCatalogEntry(before.sr)`. Keep rebuildCatalogSnapshot() in replaceAllProducts() unchanged.",
+    "5. In src/pages/AdminPage.jsx: Change `handleProductsChanged` to accept optional `{ action, product }` parameter. When action is 'created': insert the product into products state sorted by sr, prepend a synthetic audit entry {id: 'local-'+Date.now(), action: 'PRODUCT_CREATED', before: null, after: product, createdAt: {toMillis:()=>Date.now()}} to auditLogs. When action is 'updated': replace matching product in state by id, prepend synthetic audit entry. When action is 'deleted': remove product from state by id, prepend synthetic audit entry. If no action provided, fall back to full re-fetch (loadProducts+loadAuditLogs).",
+    "6. In src/components/ProductEditor.jsx: After successful create (line with toast.success), call `onProductsChanged({ action: 'created', product: created })` instead of bare `onProductsChanged()`. After successful update, call `onProductsChanged({ action: 'updated', product: { id: editingId, ...validation.product, sr: editingSr } })`. After successful delete, call `onProductsChanged({ action: 'deleted', product })` (the product variable is already the full product object from handleDelete parameter).",
+    "7. In src/pages/AdminPage.jsx: Pass `products` prop to `<CSVExporter products={products} />`. In src/components/CSVExporter.jsx: Accept `products` prop, remove fetchProducts import and the async fetch call in handleExport, make handleExport synchronous using the products prop directly for CSV generation.",
+    "8. In src/services/imageService.js: Add module-level `const imageCache = new Map()`. Add `fetchProductImagesCached(sr)` that returns from cache if available, else calls fetchProductImages(sr) and caches result. Add `invalidateImageCache(sr)` that deletes the sr entry. Export both.",
+    "9. In src/services/noteService.js: Add module-level `const noteCache = new Map()`. Add `fetchProductNoteCached(sr)` that returns from cache if available, else calls fetchProductNote(sr) and caches result. Add `invalidateNoteCache(sr)` that deletes the sr entry. Export both.",
+    "10. In src/components/ProductDetailModal.jsx: Import fetchProductImagesCached and invalidateImageCache from imageService. Import fetchProductNoteCached and invalidateNoteCache from noteService. In loadImages, use fetchProductImagesCached instead of fetchProductImages. In loadNote, use fetchProductNoteCached instead of fetchProductNote. After handleDeleteImage succeeds (after toast.success), call invalidateImageCache(product.sr) before await loadImages(). After handleSaveNote succeeds (after toast.success), call invalidateNoteCache(product.sr).",
+    "11. In src/services/priceRequestService.js: In approvePriceRequest(), remove the `getProductById()` call and the `updateProduct()` call. Instead, directly call `updateDoc(doc(db, 'products', request.productId), { wPrice: Number(request.requestedWPrice), rPrice: Number(request.requestedRPrice) })`. Then log audit event using data from request object: before={wPrice: request.currentWPrice, rPrice: request.currentRPrice}, after={wPrice: request.requestedWPrice, rPrice: request.requestedRPrice}. After the product update, do an incremental catalog update: read catalog/current doc, find entry by productName matching request.productName, update its wPrice and rPrice, write back. Import doc, getDoc, setDoc from firestore and logAuditEvent from auditService. Remove imports of updateProduct and getProductById.",
+    "12. In src/services/productService.js: Add module-level `let cachedNextSr = null`. Add `peekNextSrCached()` that returns cachedNextSr if not null, else calls peekNextSr() and caches. Add `invalidateSrCache()` that sets cachedNextSr = null. In createProduct(), call invalidateSrCache() after the transaction completes (before logAuditEvent). Export peekNextSrCached and invalidateSrCache.",
+    "13. In src/components/ProductEditor.jsx: Import peekNextSrCached and invalidateSrCache from productService (in addition to existing peekNextSr). Replace the peekNextSr() call in the useEffect (when accordion opens) with peekNextSrCached(). Keep the post-create peekNextSr().then(setNextSrPreview) call using the uncached version (already invalidated by createProduct).",
+    "14. In src/components/ImageUploader.jsx: Change the validation logic to only call `getProductImageCount(sr)` if `imageCount >= 4`. If imageCount < 4, skip the server-side count check and proceed directly to upload."
+  ],
+  "acceptance_criteria": [
+    "HomePage uses fetchCatalogWithCache() instead of fetchProducts()",
+    "createProduct/updateProduct/deleteProduct use incremental catalog updates instead of full rebuild",
+    "AdminPage handleProductsChanged supports optimistic updates with {action, product} parameter",
+    "ProductEditor passes action/product info to onProductsChanged callbacks",
+    "CSVExporter uses products prop instead of fetching from Firestore",
+    "ProductDetailModal uses cached image/note fetchers with invalidation",
+    "approvePriceRequest no longer calls getProductById or updateProduct - uses direct updateDoc",
+    "peekNextSrCached is used in ProductEditor useEffect",
+    "ImageUploader only calls getProductImageCount when imageCount >= 4",
+    "`npm run build` passes without errors"
+  ],
+  "verification": [
+    "Run `cd /projects/sandbox/pricelist && npm run build` and confirm exit code 0"
+  ],
+  "blocked_reason": null,
+  "findings": "All 14 steps implemented successfully. Build passes with only the pre-existing chunk size warning (>500kB). No test framework to run. All acceptance criteria met."
+}
