@@ -8,6 +8,19 @@ import { db } from './firebase.js';
 
 const PRODUCT_NOTES_COLLECTION = 'productNotes';
 
+const noteCache = new Map();
+
+export async function fetchProductNoteCached(sr) {
+  if (noteCache.has(sr)) return noteCache.get(sr);
+  const result = await fetchProductNote(sr);
+  noteCache.set(sr, result);
+  return result;
+}
+
+export function invalidateNoteCache(sr) {
+  noteCache.delete(sr);
+}
+
 export async function fetchProductNote(sr) {
   const docRef = doc(db, PRODUCT_NOTES_COLLECTION, String(sr));
   const snapshot = await getDoc(docRef);

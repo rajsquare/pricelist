@@ -100,11 +100,38 @@ export default function AdminPage() {
     }
   }, [isAuthenticated, refreshAdminData]);
 
-  async function handleProductsChanged() {
-    await Promise.all([
-      loadProducts(),
-      loadAuditLogs(),
-    ]);
+  async function handleProductsChanged(opts) {
+    if (opts && opts.action) {
+      const { action, product } = opts;
+      if (action === 'created') {
+        setProducts((prev) => {
+          const next = [...prev, product];
+          next.sort((a, b) => a.sr - b.sr);
+          return next;
+        });
+        setAuditLogs((prev) => [
+          { id: 'local-' + Date.now(), action: 'PRODUCT_CREATED', before: null, after: product, createdAt: { toMillis: () => Date.now(), toDate: () => new Date() } },
+          ...prev,
+        ]);
+      } else if (action === 'updated') {
+        setProducts((prev) => prev.map((p) => (p.id === product.id ? product : p)));
+        setAuditLogs((prev) => [
+          { id: 'local-' + Date.now(), action: 'PRODUCT_UPDATED', before: null, after: product, createdAt: { toMillis: () => Date.now(), toDate: () => new Date() } },
+          ...prev,
+        ]);
+      } else if (action === 'deleted') {
+        setProducts((prev) => prev.filter((p) => p.id !== product.id));
+        setAuditLogs((prev) => [
+          { id: 'local-' + Date.now(), action: 'PRODUCT_DELETED', before: product, after: null, createdAt: { toMillis: () => Date.now(), toDate: () => new Date() } },
+          ...prev,
+        ]);
+      }
+    } else {
+      await Promise.all([
+        loadProducts(),
+        loadAuditLogs(),
+      ]);
+    }
   }
 
   function handleLogout() {
@@ -166,7 +193,7 @@ export default function AdminPage() {
 
       <div className="admin-grid">
         <CSVImporter onImported={handleProductsChanged} />
-        <CSVExporter />
+        <CSVExporter products={products} />
       </div>
 
       <AuditTable
