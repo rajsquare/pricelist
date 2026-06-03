@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import MaterialFilter from '../components/MaterialFilter.jsx';
 import PriceToggle from '../components/PriceToggle.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 import ProductDetailModal from '../components/ProductDetailModal.jsx';
 import SearchBar from '../components/SearchBar.jsx';
 import { fetchCatalogWithCache } from '../services/productService.js';
+import { onSyncSignalChange } from '../services/syncService.js';
 import { prepareProductsForSearch, searchProducts } from '../utils/searchEngine.js';
 
 export default function HomePage() {
@@ -15,6 +17,7 @@ export default function HomePage() {
   const [status, setStatus] = useState('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const isFirstCallback = useRef(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -41,6 +44,21 @@ export default function HomePage() {
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onSyncSignalChange(async () => {
+      if (isFirstCallback.current) {
+        isFirstCallback.current = false;
+        return;
+      }
+      localStorage.removeItem('pricelist_catalog_cache');
+      const freshProducts = await fetchCatalogWithCache();
+      setProducts(prepareProductsForSearch(freshProducts));
+      toast('Prices updated', { icon: '\u{1F504}' });
+    });
+
+    return unsubscribe;
   }, []);
 
   const results = useMemo(
