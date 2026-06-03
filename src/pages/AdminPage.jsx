@@ -11,7 +11,7 @@ import { adminConfig } from '../constants/config.js';
 import { fetchAuditLogs } from '../services/auditService.js';
 import { fetchPendingPriceRequests } from '../services/priceRequestService.js';
 import SyncButton from '../components/SyncButton.jsx';
-import { fetchProducts } from '../services/productService.js';
+import { fetchCatalog } from '../services/productService.js';
 import {
   fetchActiveRestockRequests,
   fetchCompletedRestockRequests,
@@ -36,7 +36,7 @@ export default function AdminPage() {
   const loadProducts = useCallback(async () => {
     try {
       setIsLoadingProducts(true);
-      const fetched = await fetchProducts();
+      const fetched = await fetchCatalog();
       setProducts(fetched);
     } catch (error) {
       // Propagate so caller can handle
