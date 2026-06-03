@@ -7,7 +7,6 @@ import PasswordGate from '../components/PasswordGate.jsx';
 import ProductEditor from '../components/ProductEditor.jsx';
 import RestockQueue from '../components/RestockQueue.jsx';
 import PriceRequestQueue from '../components/PriceRequestQueue.jsx';
-import SyncButton from '../components/SyncButton.jsx';
 import { adminConfig } from '../constants/config.js';
 import { fetchAuditLogs } from '../services/auditService.js';
 import { fetchProducts } from '../services/productService.js';
@@ -19,6 +18,7 @@ import {
 import {
   fetchPendingPriceRequests,
 } from '../services/priceRequestService.js';
+import SyncButton from '../components/SyncButton.jsx';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -163,7 +163,7 @@ export default function AdminPage() {
           <p>Inventory management</p>
         </div>
 
-        <div className="admin-toolbar__actions">
+        <div style={{ display: 'flex', gap: '8px' }}>
           <SyncButton />
           <button
             className="danger-button"

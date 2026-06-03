@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import MaterialFilter from '../components/MaterialFilter.jsx';
 import PriceToggle from '../components/PriceToggle.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 import ProductDetailModal from '../components/ProductDetailModal.jsx';
 import SearchBar from '../components/SearchBar.jsx';
 import { fetchCatalogWithCache } from '../services/productService.js';
-import { subscribeToCatalogUpdates } from '../services/syncService.js';
 import { prepareProductsForSearch, searchProducts } from '../utils/searchEngine.js';
 
 export default function HomePage() {
@@ -16,11 +15,6 @@ export default function HomePage() {
   const [status, setStatus] = useState('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
-
-  // Track whether initial load is done — ignore the first onSnapshot
-  // event that fires immediately on subscription (it would duplicate
-  // the initial fetch and waste a render).
-  const initialLoadDone = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -34,7 +28,6 @@ export default function HomePage() {
 
         setProducts(prepareProductsForSearch(fetchedProducts));
         setStatus('success');
-        initialLoadDone.current = true;
       } catch (error) {
         if (!isMounted) return;
 
@@ -45,25 +38,8 @@ export default function HomePage() {
 
     loadProducts();
 
-    // Subscribe to real-time catalog updates pushed by the admin Sync button.
-    // The onSnapshot callback delivers the full updated catalog payload — zero
-    // extra Firestore reads on the client side.
-    const unsubscribe = subscribeToCatalogUpdates((freshProducts) => {
-      if (!isMounted) return;
-
-      // Skip the first snapshot event that fires on initial subscription
-      // if the manual fetch hasn't completed yet — it will arrive shortly
-      // and is handled above.
-      if (!initialLoadDone.current) return;
-
-      console.info(`[HomePage] Received sync update — refreshing ${freshProducts.length} products.`);
-      setProducts(prepareProductsForSearch(freshProducts));
-      setStatus('success');
-    });
-
     return () => {
       isMounted = false;
-      unsubscribe();
     };
   }, []);
 

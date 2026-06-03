@@ -1140,52 +1140,9 @@ textarea {
   cursor: not-allowed;
 }
 
-/* ── Sync Button ─────────────────────────────────────────────────────────── */
-
-.admin-toolbar__actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.sync-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-width: 120px;
-  justify-content: center;
-  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
-}
-
-.sync-button--success {
-  min-height: 38px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  cursor: default;
-  font-weight: 700;
-  border: 1px solid #2e7d5e;
-  background: #2e7d5e;
-  color: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-width: 120px;
-  justify-content: center;
-}
-
-/* Spinning indicator shown while sync is in progress */
-.sync-button__spinner {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: sync-spin 0.7s linear infinite;
-  flex-shrink: 0;
-}
-
-@keyframes sync-spin {
-  to { transform: rotate(360deg); }
-}
+/* Sync button states */
+.sync-btn { display: inline-flex; align-items: center; gap: 6px; min-width: 110px; justify-content: center; transition: background 0.2s; }
+.sync-btn--success { background: #2e7d5e; border-color: #2e7d5e; }
+.sync-btn--error { background: #d65353; border-color: #d65353; }
+.sync-btn__spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
