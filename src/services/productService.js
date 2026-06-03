@@ -52,24 +52,46 @@ function normalizeProductInput(product) {
   };
 }
 
+// Shape of a single product as stored in the catalog snapshot (includes id).
+function toCatalogEntry(product) {
+  return {
+    id: product.id,
+    ...normalizeProductInput(product),
+  };
+}
+
+function sortBySr(list) {
+  return [...list].sort((a, b) => (Number(a.sr) || 0) - (Number(b.sr) || 0));
+}
+
 // ── Catalog Snapshot ─────────────────────────────────────────────────────────
 
+// Read-modify-write the SINGLE snapshot doc. Costs 1 read (one document),
+// never N. Used for create/update/delete.
+async function patchCatalog(transform) {
+  const ref = doc(db, CATALOG_DOC);
+  const snap = await getDoc(ref); // 1 read
+  const current = snap.exists() ? (snap.data().products ?? []) : [];
+  const next = sortBySr(transform(current.slice()));
+
+  await setDoc(ref, {
+    products: next,
+    updatedAt: Date.now(),
+  });
+}
+
+// Full rebuild from the collection (N reads). Admin-only / rare:
+// used by the Sync button and as a one-time migration to backfill ids.
 async function rebuildCatalogSnapshot() {
   const q = query(collection(db, PRODUCTS_COLLECTION), orderBy('sr', 'asc'));
   const snapshot = await getDocs(q);
 
-  const products = snapshot.docs.map((documentSnapshot) => {
-    const data = documentSnapshot.data();
-
-    return {
-      sr: Number(data.sr),
-      productName: String(data.productName ?? '').trim(),
-      wPrice: normalizeNumber(data.wPrice),
-      rPrice: normalizeNumber(data.rPrice),
-      priceType: String(data.priceType ?? '').trim(),
-      material: String(data.material ?? data.Material ?? '').trim(),
-    };
-  });
+  const products = snapshot.docs.map((documentSnapshot) =>
+    toCatalogEntry({
+      id: documentSnapshot.id,
+      ...documentSnapshot.data(),
+    }),
+  );
 
   await setDoc(doc(db, CATALOG_DOC), {
     products,
@@ -98,8 +120,17 @@ export async function syncSrCounter() {
   return max;
 }
 
+// ── Catalog read (1 read) ─────────────────────────────────────────────────────
+
+export async function fetchCatalog() {
+  const snap = await getDoc(doc(db, CATALOG_DOC)); // 1 read
+  if (!snap.exists()) return [];
+  return sortBySr(snap.data().products ?? []);
+}
+
 // ── Product CRUD ─────────────────────────────────────────────────────────────
 
+// Kept for occasional use (e.g. counter resync); no longer used by the app UI.
 export async function fetchProducts() {
   const q = query(collection(db, PRODUCTS_COLLECTION), orderBy('sr', 'asc'));
   const snapshot = await getDocs(q);
@@ -158,7 +189,11 @@ export async function createProduct(productFields) {
     after: created,
   });
 
-  await rebuildCatalogSnapshot();
+  // Patch snapshot: 1 read of the single catalog doc, never N.
+  await patchCatalog((list) => [
+    ...list.filter((p) => p.id !== created.id),
+    toCatalogEntry(created),
+  ]);
 
   return created;
 }
@@ -178,7 +213,13 @@ export async function updateProduct(productId, product) {
     },
   });
 
-  await rebuildCatalogSnapshot();
+  const entry = toCatalogEntry({ id: productId, ...after });
+  await patchCatalog((list) => {
+    const exists = list.some((p) => p.id === productId);
+    return exists
+      ? list.map((p) => (p.id === productId ? entry : p))
+      : [...list, entry];
+  });
 
   return {
     id: productId,
@@ -197,7 +238,7 @@ export async function deleteProduct(productId) {
     after: null,
   });
 
-  await rebuildCatalogSnapshot();
+  await patchCatalog((list) => list.filter((p) => p.id !== productId));
 }
 
 export async function replaceAllProducts(products) {
@@ -215,13 +256,18 @@ export async function replaceAllProducts(products) {
     await batch.commit();
   }
 
+  // Insert new docs, capturing the generated ids so we can build the
+  // snapshot from memory (0 extra catalog reads).
+  const inserted = [];
   for (let i = 0; i < normalizedProducts.length; i += BATCH_LIMIT) {
     const batch = writeBatch(db);
 
     normalizedProducts
       .slice(i, i + BATCH_LIMIT)
       .forEach((p) => {
-        batch.set(doc(collectionRef), p);
+        const ref = doc(collectionRef);
+        batch.set(ref, p);
+        inserted.push({ id: ref.id, ...p });
       });
 
     await batch.commit();
@@ -246,13 +292,18 @@ export async function replaceAllProducts(products) {
     },
   });
 
-  await rebuildCatalogSnapshot();
+  // Write snapshot straight from memory — no catalog read needed.
+  await setDoc(doc(db, CATALOG_DOC), {
+    products: sortBySr(inserted.map(toCatalogEntry)),
+    updatedAt: Date.now(),
+  });
 
   return {
     deleted: snapshot.size,
     inserted: normalizedProducts.length,
   };
 }
+
 export async function rebuildCatalogNow() {
   await rebuildCatalogSnapshot();
 }
