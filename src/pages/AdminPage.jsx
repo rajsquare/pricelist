@@ -10,6 +10,7 @@ import PriceRequestQueue from '../components/PriceRequestQueue.jsx';
 import { adminConfig } from '../constants/config.js';
 import { fetchAuditLogs } from '../services/auditService.js';
 import { fetchProducts } from '../services/productService.js';
+import { triggerGlobalSync } from '../services/syncService.js';
 import {
   fetchActiveRestockRequests,
   fetchCompletedRestockRequests,
@@ -33,6 +34,7 @@ export default function AdminPage() {
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [isLoadingAudit, setIsLoadingAudit] = useState(false);
   const [isLoadingRestock, setIsLoadingRestock] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const [loadError, setLoadError] = useState('');
 
@@ -146,6 +148,20 @@ export default function AdminPage() {
     toast.success('Logged out');
   }
 
+  async function handleGlobalSync() {
+    if (!window.confirm('Push latest prices to all employee devices?')) return;
+
+    try {
+      setIsSyncing(true);
+      await triggerGlobalSync();
+      toast.success('Prices synced to all devices');
+    } catch (error) {
+      toast.error(error.message || 'Sync failed');
+    } finally {
+      setIsSyncing(false);
+    }
+  }
+
   if (!isAuthenticated) {
     return (
       <PasswordGate
@@ -190,6 +206,23 @@ export default function AdminPage() {
         products={products}
         onProductsChanged={handleProductsChanged}
       />
+
+      <section className="admin-card sync-section">
+        <div className="section-heading">
+          <h3>Price Sync</h3>
+        </div>
+        <p className="sync-description">
+          Push the latest prices to all currently connected employee devices.
+        </p>
+        <button
+          className="sync-button"
+          type="button"
+          disabled={isSyncing}
+          onClick={handleGlobalSync}
+        >
+          {isSyncing ? 'Syncing...' : 'Sync Prices to All Devices'}
+        </button>
+      </section>
 
       <div className="admin-grid">
         <CSVImporter onImported={handleProductsChanged} />
