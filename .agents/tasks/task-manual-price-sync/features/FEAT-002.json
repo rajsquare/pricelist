@@ -1,0 +1,30 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Implement the manual global price sync mechanism. This includes: (1) a sync signal service using a Firestore document 'meta/syncSignal' that the admin writes to when triggering a sync, (2) a real-time onSnapshot listener on the employee HomePage that watches this signal document and auto-refreshes prices when it changes, (3) a 'Sync Prices to All Devices' button in the AdminPage under the product management section, and (4) CSS styling for the new button.",
+  "status": "pending",
+  "steps": [
+    "Step 1: Create a new service file src/services/syncService.js that exports two functions: (a) triggerGlobalSync() - writes a new timestamp to Firestore doc 'meta/syncSignal' with field {lastSyncAt: Date.now(), triggeredBy: 'admin'}. This is what the admin button calls. (b) onSyncSignalChange(callback) - sets up an onSnapshot listener on 'meta/syncSignal' and calls the callback whenever the document changes (skip the initial snapshot to avoid unnecessary refetch on page load). Returns an unsubscribe function. Import {doc, setDoc, onSnapshot} from 'firebase/firestore' and {db} from './firebase.js'.",
+    "Step 2: Modify src/pages/AdminPage.jsx to add a 'Sync Prices to All Devices' button. Add it as a new admin-card section positioned AFTER the ProductEditor and BEFORE the admin-grid (CSV import/export). Import triggerGlobalSync from syncService.js. The button should: show a confirmation dialog ('Push latest prices to all employee devices?'), call triggerGlobalSync(), show a toast success message ('Prices synced to all devices'), handle errors with toast.error. Include state for isSyncing to disable the button during the operation. The section should have a heading 'Price Sync' with explanatory text 'Push the latest prices to all currently connected employee devices.'",
+    "Step 3: Modify src/pages/HomePage.jsx to listen for sync signals. Import onSyncSignalChange from syncService.js. In a new useEffect (separate from the existing data load effect), call onSyncSignalChange with a callback that: (a) clears the localStorage cache key 'pricelist_catalog_cache', (b) calls fetchCatalogWithCache() to get fresh data, (c) updates the products state via setProducts(prepareProductsForSearch(freshProducts)), (d) shows a toast notification 'Prices updated' so the user knows new prices arrived. The useEffect should return the unsubscribe function for cleanup. Use a ref (useRef) to skip the first onSnapshot callback (the initial snapshot fires immediately on subscription - we only want to react to subsequent changes).",
+    "Step 4: Add CSS styles to src/styles.css for the sync button section. Add a .sync-section class with appropriate styling that matches the existing admin-card pattern. Add a .sync-button class styled distinctively (use a green/teal color like #0f766e background, white text) to make it visually distinct from regular buttons and convey 'push/broadcast' semantics. Also add a .sync-description class for the explanatory text (color: #667085, font-size: 13px, margin: 0)."
+  ],
+  "acceptance_criteria": [
+    "A new file src/services/syncService.js exists with triggerGlobalSync() and onSyncSignalChange() functions",
+    "AdminPage.jsx shows a 'Sync Prices to All Devices' button in a distinct section between ProductEditor and the CSV grid",
+    "Clicking the sync button calls triggerGlobalSync() which writes to Firestore 'meta/syncSignal'",
+    "HomePage.jsx sets up an onSnapshot listener on 'meta/syncSignal' that triggers a price refresh when the document changes",
+    "The initial onSnapshot callback is skipped (no unnecessary refetch on page load)",
+    "The onSnapshot listener is properly cleaned up on component unmount",
+    "The project builds without errors (npm run build succeeds)",
+    "No automatic sync occurs on price edit - only the manual button triggers global sync"
+  ],
+  "verification": [
+    "Run 'npm run build' in /projects/sandbox/pricelist and confirm exit code 0 with no errors",
+    "Verify src/services/syncService.js exists and exports triggerGlobalSync and onSyncSignalChange",
+    "Verify AdminPage.jsx imports and uses triggerGlobalSync",
+    "Verify HomePage.jsx imports and uses onSyncSignalChange with proper cleanup"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

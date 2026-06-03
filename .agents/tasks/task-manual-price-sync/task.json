@@ -1,0 +1,7 @@
+{
+  "task_id": "task-manual-price-sync",
+  "task_description": "Implement a manual global price sync mechanism. Admin can make multiple price changes throughout the day without triggering syncs. When ready, admin clicks a 'Sync Prices to All Devices' button that writes to a Firestore signal document. All connected employee devices have a real-time listener on this document and automatically refresh their prices when it changes.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}

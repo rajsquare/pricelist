@@ -1,0 +1,25 @@
+{
+  "project_type": "React + Vite SPA with Firebase Firestore backend",
+  "language": "JavaScript (ES modules, JSX)",
+  "build_system": "Vite (vite build), npm for package management",
+  "test_framework": "None configured (no test files or test dependencies found)",
+  "build_command": "npm run build",
+  "test_command": "npm run build (no unit tests exist - build success is the verification)",
+  "verification_instructions": "Run npm run build to confirm no compilation errors. Manually verify the sync button appears in AdminPage and the real-time listener logic is correctly structured.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "cd /projects/sandbox/pricelist && npm install",
+  "environment_constraints": "OPEN_INTERNET - full network access available. Node.js v22 available via nvm.",
+  "contribution_requirements": "No CONTRIBUTING.md found. Follow existing code patterns: ES module imports, react-hot-toast for notifications, Firebase Firestore for data, functional components with hooks.",
+  "key_patterns": "Services in src/services/ export async functions that interact with Firestore. Components use useState/useEffect hooks. Toast notifications via react-hot-toast. Admin authentication via localStorage flag. Catalog data stored in single Firestore doc 'catalog/current' with {products: [...], updatedAt: timestamp}. Employee caching uses localStorage key 'pricelist_catalog_cache' with 5-min TTL. ProductEditor handles create/update/delete and calls onProductsChanged callback. AdminPage orchestrates all admin sections.",
+  "relevant_files": [
+    "src/services/productService.js",
+    "src/services/firebase.js",
+    "src/pages/HomePage.jsx",
+    "src/pages/AdminPage.jsx",
+    "src/components/ProductEditor.jsx",
+    "src/components/PriceRequestQueue.jsx",
+    "src/styles.css",
+    "src/constants/config.js"
+  ],
+  "directory_structure": "src/services/ - Firebase service modules (productService, auditService, etc). src/components/ - React UI components. src/pages/ - Page-level components (AdminPage, HomePage). src/constants/ - Configuration (Firebase config, admin password). src/utils/ - Utility functions (search, CSV, cloudinary)."
+}
