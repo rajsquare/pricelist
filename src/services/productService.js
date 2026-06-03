@@ -77,116 +77,12 @@ async function rebuildCatalogSnapshot() {
   });
 }
 
-export async function fetchCatalog() {
-  const snap = await getDoc(doc(db, CATALOG_DOC));
-  if (!snap.exists()) return [];
-  return snap.data().products || [];
-}
-
-const CACHE_KEY = 'pricelist_catalog_cache';
-const CACHE_TTL = 300000;
-
-export async function fetchCatalogWithCache() {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (raw) {
-      const cached = JSON.parse(raw);
-      if (cached.timestamp && Date.now() - cached.timestamp < CACHE_TTL) {
-        return cached.products;
-      }
-    }
-  } catch {
-    // ignore parse errors
-  }
-
-  const products = await fetchCatalog();
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ products, timestamp: Date.now() }));
-  } catch {
-    // ignore storage errors
-  }
-  return products;
-}
-
-export async function updateCatalogEntry(updatedProduct) {
-  const catalogRef = doc(db, CATALOG_DOC);
-  const snap = await getDoc(catalogRef);
-  let products = [];
-  if (snap.exists()) {
-    products = snap.data().products || [];
-  }
-
-  const index = products.findIndex((p) => p.sr === updatedProduct.sr);
-  const entry = {
-    sr: updatedProduct.sr,
-    productName: updatedProduct.productName,
-    wPrice: updatedProduct.wPrice,
-    rPrice: updatedProduct.rPrice,
-    priceType: updatedProduct.priceType,
-    material: updatedProduct.material,
-  };
-
-  if (index >= 0) {
-    products[index] = entry;
-  } else {
-    products.push(entry);
-    products.sort((a, b) => a.sr - b.sr);
-  }
-
-  await setDoc(catalogRef, { products, updatedAt: Date.now() });
-  try { localStorage.removeItem(CACHE_KEY); } catch {}
-}
-
-export async function removeCatalogEntry(sr) {
-  const catalogRef = doc(db, CATALOG_DOC);
-  const snap = await getDoc(catalogRef);
-  let products = [];
-  if (snap.exists()) {
-    products = snap.data().products || [];
-  }
-
-  products = products.filter((p) => p.sr !== sr);
-  await setDoc(catalogRef, { products, updatedAt: Date.now() });
-  try { localStorage.removeItem(CACHE_KEY); } catch {}
-}
-
-export async function updateCatalogEntryPrices(sr, productName, wPrice, rPrice) {
-  const catalogRef = doc(db, CATALOG_DOC);
-  const snap = await getDoc(catalogRef);
-  if (!snap.exists()) return;
-  const products = snap.data().products || [];
-  const index = products.findIndex(
-    (p) => p.sr === sr || p.productName === productName,
-  );
-  if (index >= 0) {
-    products[index] = {
-      ...products[index],
-      wPrice,
-      rPrice,
-    };
-    await setDoc(catalogRef, { products, updatedAt: Date.now() });
-    try { localStorage.removeItem(CACHE_KEY); } catch {}
-  }
-}
-
 // ── SR Counter ───────────────────────────────────────────────────────────────
-
-let cachedNextSr = null;
 
 export async function peekNextSr() {
   const snap = await getDoc(doc(db, SR_COUNTER_DOC));
   if (!snap.exists()) return 1;
   return (snap.data().current ?? 0) + 1;
-}
-
-export async function peekNextSrCached() {
-  if (cachedNextSr !== null) return cachedNextSr;
-  cachedNextSr = await peekNextSr();
-  return cachedNextSr;
-}
-
-export function invalidateSrCache() {
-  cachedNextSr = null;
 }
 
 export async function syncSrCounter() {
@@ -256,22 +152,13 @@ export async function createProduct(productFields) {
     sr: assignedSr,
   };
 
-  invalidateSrCache();
-
   await logAuditEvent({
     action: 'PRODUCT_CREATED',
     before: null,
     after: created,
   });
 
-  await updateCatalogEntry({
-    sr: created.sr,
-    productName: created.productName,
-    wPrice: created.wPrice,
-    rPrice: created.rPrice,
-    priceType: created.priceType,
-    material: created.material,
-  });
+  await rebuildCatalogSnapshot();
 
   return created;
 }
@@ -291,14 +178,7 @@ export async function updateProduct(productId, product) {
     },
   });
 
-  await updateCatalogEntry({
-    sr: after.sr,
-    productName: after.productName,
-    wPrice: after.wPrice,
-    rPrice: after.rPrice,
-    priceType: after.priceType,
-    material: after.material,
-  });
+  await rebuildCatalogSnapshot();
 
   return {
     id: productId,
@@ -317,7 +197,7 @@ export async function deleteProduct(productId) {
     after: null,
   });
 
-  await removeCatalogEntry(before.sr);
+  await rebuildCatalogSnapshot();
 }
 
 export async function replaceAllProducts(products) {

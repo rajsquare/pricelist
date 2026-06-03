@@ -33,12 +33,10 @@ export default function ImageUploader({ sr, imageCount, onUploaded }) {
     try {
       setIsUploading(true);
 
-      if (imageCount >= 4) {
-        const latestImageCount = await getProductImageCount(sr);
+      const latestImageCount = await getProductImageCount(sr);
 
-        if (latestImageCount >= MAX_IMAGES) {
-          throw new Error('This product already has 5 images.');
-        }
+      if (latestImageCount >= MAX_IMAGES) {
+        throw new Error('This product already has 5 images.');
       }
 
       const imageUrl = await uploadProductImage(file, setProgress);

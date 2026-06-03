@@ -4,7 +4,7 @@ import PriceToggle from '../components/PriceToggle.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 import ProductDetailModal from '../components/ProductDetailModal.jsx';
 import SearchBar from '../components/SearchBar.jsx';
-import { fetchCatalogWithCache } from '../services/productService.js';
+import { fetchProducts } from '../services/productService.js';
 import { prepareProductsForSearch, searchProducts } from '../utils/searchEngine.js';
 
 export default function HomePage() {
@@ -22,7 +22,7 @@ export default function HomePage() {
     async function loadProducts() {
       try {
         setStatus('loading');
-        const fetchedProducts = await fetchCatalogWithCache();
+        const fetchedProducts = await fetchProducts();
 
         if (!isMounted) return;
 
@@ -81,11 +81,11 @@ export default function HomePage() {
       </div>
 
       {status === 'loading' ? (
-        <div className="catalog-state">Loading products...</div>
+        <div className="catalog-state" role="status" aria-live="polite">Loading products...</div>
       ) : null}
 
       {status === 'error' ? (
-        <div className="catalog-state catalog-state-error">
+        <div className="catalog-state catalog-state-error" role="alert">
           <strong>Could not load products.</strong>
           <span>{errorMessage}</span>
         </div>
@@ -103,11 +103,11 @@ export default function HomePage() {
       ) : null}
 
       {showNoMatches ? (
-        <div className="catalog-state">No matching products found.</div>
+        <div className="catalog-state" role="status">No matching products found.</div>
       ) : null}
 
       {results.length > 0 ? (
-        <div className="results-list" aria-live="polite">
+        <div className="results-list" aria-live="polite" aria-label="Search results">
           {results.map((product) => (
             <ProductCard
               key={product.id}

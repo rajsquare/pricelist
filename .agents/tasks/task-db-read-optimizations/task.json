@@ -1,7 +1,0 @@
-{
-  "task_id": "task-db-read-optimizations",
-  "task_description": "Implement aggressive Firestore read optimizations to reduce document reads by ~99% while maintaining identical user experience. Changes include: catalog snapshot for public page, incremental catalog updates, optimistic UI updates, session caches for images/notes, and eliminating redundant reads.",
-  "status": "in_progress",
-  "feature_order": ["FEAT-001", "FEAT-002"],
-  "blocked_reason": null
-}

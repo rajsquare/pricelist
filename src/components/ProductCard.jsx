@@ -1,8 +1,7 @@
-function formatPrice(value) {
-  if (value === null || value === undefined || value === '') {
-    return '-';
-  }
+import { memo } from 'react';
 
+function formatPrice(value) {
+  if (value === null || value === undefined || value === '') return '-';
   return value;
 }
 
@@ -13,23 +12,30 @@ function getMaterialClass(material) {
   return '';
 }
 
-export default function ProductCard({ product, priceMode, onOpen }) {
+const ProductCard = memo(function ProductCard({ product, priceMode, onOpen }) {
   const activePrice = priceMode === 'W' ? product.wPrice : product.rPrice;
   const priceClass = priceMode === 'W' ? 'price-w-full' : 'price-r-full';
   const materialClass = getMaterialClass(product.material);
+
+  function handleOpen() {
+    onOpen(product);
+  }
+
+  function handleKeyDown(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onOpen(product);
+    }
+  }
 
   return (
     <article
       className="product-card product-card-clickable"
       role="button"
       tabIndex={0}
-      onClick={() => onOpen(product)}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          onOpen(product);
-        }
-      }}
+      aria-label={`${product.productName}, SR ${product.sr}`}
+      onClick={handleOpen}
+      onKeyDown={handleKeyDown}
     >
       <div className="product-title">
         {product.sr}. {product.productName}
@@ -45,11 +51,13 @@ export default function ProductCard({ product, priceMode, onOpen }) {
             {product.priceType || ''}
           </div>
 
-          {product.material ? (
+          {product.material && product.material !== '-' ? (
             <div className={`unit material-badge ${materialClass}`}>{product.material}</div>
           ) : null}
         </div>
       </div>
     </article>
   );
-}
+});
+
+export default ProductCard;

@@ -5,11 +5,6 @@ import { rebuildCatalogNow } from './productService.js';
 
 const SYNC_SIGNAL_DOC = 'meta/syncSignal';
 
-/**
- * Rebuilds catalog/current from the products collection, then writes a
- * timestamp to meta/syncSignal. Any client subscribed to catalog/current
- * via onSnapshot receives the updated data automatically — no extra reads.
- */
 export async function triggerGlobalSync() {
   console.info('[PriceSync] Admin triggered global price sync…');
   const startedAt = Date.now();

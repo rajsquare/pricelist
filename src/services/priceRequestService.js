@@ -1,58 +1,94 @@
-import { addDoc, collection, serverTimestamp, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import { db } from './firebase.js';
-import { logAuditEvent } from './auditService.js';
-import { updateCatalogEntryPrices } from './productService.js';
+import { getProductById, updateProduct } from './productService.js';
 
-const requestsCollection = collection(db, 'priceChangeRequests');
+const COLLECTION = 'priceChangeRequests';
+const requestsRef = () => collection(db, COLLECTION);
 
-export async function submitPriceChangeRequest({ product, requestedWPrice, requestedRPrice, requestedBy, note }) {
-  await addDoc(requestsCollection, {
+// ── Submit ────────────────────────────────────────────────────────────────────
+
+export async function submitPriceChangeRequest({
+  product,
+  requestedWPrice,
+  requestedRPrice,
+  requestedBy,
+  note,
+}) {
+  if (!product?.id) throw new Error('Product ID is required.');
+
+  const wNum = Number(requestedWPrice);
+  const rNum = Number(requestedRPrice);
+
+  if (!Number.isFinite(wNum)) throw new Error('Requested W Price must be a valid number.');
+  if (!Number.isFinite(rNum)) throw new Error('Requested R Price must be a valid number.');
+  if (!String(requestedBy ?? '').trim()) throw new Error('Requested By is required.');
+
+  await addDoc(requestsRef(), {
     productId: product.id,
-    productName: product.productName,
-    sr: product.sr,
-    currentWPrice: product.wPrice || 0,
-    currentRPrice: product.rPrice || 0,
-    requestedWPrice: Number(requestedWPrice),
-    requestedRPrice: Number(requestedRPrice),
-    requestedBy: requestedBy || 'Unknown',
-    note: note || '',
+    productName: String(product.productName ?? '').trim(),
+    currentWPrice: product.wPrice ?? null,
+    currentRPrice: product.rPrice ?? null,
+    requestedWPrice: wNum,
+    requestedRPrice: rNum,
+    requestedBy: String(requestedBy).trim(),
+    note: String(note ?? '').trim(),
     status: 'pending',
     createdAt: serverTimestamp(),
+    approvedAt: null,
+    rejectedAt: null,
   });
 }
 
+// ── Fetch ─────────────────────────────────────────────────────────────────────
+
 export async function fetchPendingPriceRequests() {
-  const q = query(requestsCollection, where('status', '==', 'pending'));
+  const q = query(
+    requestsRef(),
+    where('status', '==', 'pending'),
+    orderBy('createdAt', 'asc'),
+  );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((docSnap) => ({
-    id: docSnap.id,
-    ...docSnap.data(),
-  }));
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
+// ── Approve ───────────────────────────────────────────────────────────────────
+
 export async function approvePriceRequest(request) {
-  await updateDoc(doc(db, 'products', request.productId), {
+  if (!request?.productId) throw new Error('Missing productId on request.');
+
+  // SAFE MERGE: fetch full existing product first, update ONLY pricing fields
+  const existing = await getProductById(request.productId);
+
+  if (!existing) throw new Error('Product no longer exists — cannot approve.');
+
+  await updateProduct(request.productId, {
+    ...existing,
     wPrice: Number(request.requestedWPrice),
     rPrice: Number(request.requestedRPrice),
   });
 
-  await logAuditEvent({
-    action: 'PRODUCT_UPDATED',
-    before: { wPrice: request.currentWPrice, rPrice: request.currentRPrice },
-    after: { wPrice: request.requestedWPrice, rPrice: request.requestedRPrice },
-  });
-
-  // Incremental catalog update
-  await updateCatalogEntryPrices(request.sr, request.productName, Number(request.requestedWPrice), Number(request.requestedRPrice));
-
-  await updateDoc(doc(db, 'priceChangeRequests', request.id), {
+  await updateDoc(doc(db, COLLECTION, request.id), {
     status: 'approved',
     approvedAt: serverTimestamp(),
   });
 }
 
+// ── Reject ────────────────────────────────────────────────────────────────────
+
 export async function rejectPriceRequest(requestId) {
-  await updateDoc(doc(db, 'priceChangeRequests', requestId), {
+  if (!requestId) throw new Error('Request ID is required.');
+
+  await updateDoc(doc(db, COLLECTION, requestId), {
     status: 'rejected',
     rejectedAt: serverTimestamp(),
   });

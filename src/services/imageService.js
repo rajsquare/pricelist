@@ -14,19 +14,6 @@ import { db } from './firebase.js';
 const PRODUCT_IMAGES_COLLECTION = 'productImages';
 const MAX_PRODUCT_IMAGES = 5;
 
-const imageCache = new Map();
-
-export async function fetchProductImagesCached(sr) {
-  if (imageCache.has(sr)) return imageCache.get(sr);
-  const result = await fetchProductImages(sr);
-  imageCache.set(sr, result);
-  return result;
-}
-
-export function invalidateImageCache(sr) {
-  imageCache.delete(sr);
-}
-
 function normalizeImage(documentSnapshot) {
   return {
     id: documentSnapshot.id,

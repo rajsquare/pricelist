@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { createProduct, deleteProduct, peekNextSr, peekNextSrCached, updateProduct } from '../services/productService.js';
+import { createProduct, deleteProduct, peekNextSr, updateProduct } from '../services/productService.js';
 import { MATERIAL_OPTIONS, validateProductInput } from '../utils/csvProducts.js';
 
 const EMPTY_FORM = {
@@ -29,13 +29,11 @@ export default function ProductEditor({ products, onProductsChanged }) {
   const [isSaving, setIsSaving] = useState(false);
   const [filter, setFilter] = useState('');
   const [addOpen, setAddOpen] = useState(false);
-  // Live SR preview from Firestore counter
   const [nextSrPreview, setNextSrPreview] = useState('…');
 
-  // Fetch the live counter whenever the accordion opens for a new product
   useEffect(() => {
     if (addOpen && !editingId) {
-      peekNextSrCached()
+      peekNextSr()
         .then((n) => setNextSrPreview(n))
         .catch(() => setNextSrPreview('?'));
     }
@@ -68,9 +66,10 @@ export default function ProductEditor({ products, onProductsChanged }) {
     setForm(productToForm(product));
     setErrors([]);
     setAddOpen(true);
-    setTimeout(() => {
+    // Use requestAnimationFrame for smooth scroll after render
+    requestAnimationFrame(() => {
       document.querySelector('.product-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+    });
   }
 
   function handleToggleAccordion() {
@@ -85,8 +84,6 @@ export default function ProductEditor({ products, onProductsChanged }) {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    // For validation, supply a placeholder sr — createProduct ignores it and
-    // uses the atomic counter; updateProduct preserves the existing sr.
     const srForValidation = editingId ? editingSr : 1;
     const validation = validateProductInput({ ...form, sr: srForValidation });
     setErrors(validation.errors);
@@ -95,20 +92,15 @@ export default function ProductEditor({ products, onProductsChanged }) {
     try {
       setIsSaving(true);
       if (editingId) {
-        // Keep the original sr on update
         await updateProduct(editingId, { ...validation.product, sr: editingSr });
         toast.success('Product updated');
-        resetForm();
-        setAddOpen(false);
-        await onProductsChanged({ action: 'updated', product: { id: editingId, ...validation.product, sr: editingSr } });
       } else {
         const created = await createProduct(validation.product);
         toast.success(`Product created · SR ${created.sr}`);
-        resetForm();
-        setAddOpen(false);
-        await onProductsChanged({ action: 'created', product: created });
       }
-      // Refresh sr preview for next add
+      resetForm();
+      setAddOpen(false);
+      await onProductsChanged();
       peekNextSr().then(setNextSrPreview).catch(() => {});
     } catch (error) {
       toast.error(error.message || 'Product save failed');
@@ -126,7 +118,7 @@ export default function ProductEditor({ products, onProductsChanged }) {
       await deleteProduct(product.id);
       toast.success('Product deleted');
       if (editingId === product.id) resetForm();
-      await onProductsChanged({ action: 'deleted', product });
+      await onProductsChanged();
     } catch (error) {
       toast.error(error.message || 'Product delete failed');
     } finally {
@@ -146,17 +138,19 @@ export default function ProductEditor({ products, onProductsChanged }) {
         <button
           className={`accordion-trigger ${addOpen ? 'accordion-trigger-open' : ''}`}
           type="button"
+          aria-expanded={addOpen}
+          aria-controls="product-editor-form"
           onClick={handleToggleAccordion}
         >
           <span>
             {editingId ? `Editing SR ${editingSr}` : `Add Product · next SR: ${nextSrPreview}`}
           </span>
-          <span className="accordion-chevron">{addOpen ? '▲' : '▼'}</span>
+          <span className="accordion-chevron" aria-hidden="true">{addOpen ? '▲' : '▼'}</span>
         </button>
 
         {addOpen ? (
-          <div className="accordion-body">
-            <form className="admin-form product-form" onSubmit={handleSubmit}>
+          <div id="product-editor-form" className="accordion-body">
+            <form className="admin-form product-form" onSubmit={handleSubmit} noValidate>
               {editingId ? (
                 <label className="sr-readonly-label">
                   SR No.
@@ -173,6 +167,7 @@ export default function ProductEditor({ products, onProductsChanged }) {
                 Product Name
                 <input
                   value={form.productName}
+                  aria-required="true"
                   onChange={(e) => updateField('productName', e.target.value)}
                 />
               </label>
@@ -196,6 +191,7 @@ export default function ProductEditor({ products, onProductsChanged }) {
                 Price Type
                 <input
                   value={form.priceType}
+                  aria-required="true"
                   onChange={(e) => updateField('priceType', e.target.value)}
                 />
               </label>
@@ -212,7 +208,7 @@ export default function ProductEditor({ products, onProductsChanged }) {
               </label>
 
               {errors.length > 0 ? (
-                <div className="form-error">
+                <div className="form-error" role="alert">
                   {errors.map((e) => <div key={e}>{e}</div>)}
                 </div>
               ) : null}
@@ -237,10 +233,14 @@ export default function ProductEditor({ products, onProductsChanged }) {
 
       {/* ── Search-on-demand product list ── */}
       <div className="admin-list-tools">
+        <label className="sr-only" htmlFor="product-editor-search">Search products to edit or delete</label>
         <input
+          id="product-editor-search"
           value={filter}
           placeholder="Search products to edit or delete…"
           onChange={(e) => setFilter(e.target.value)}
+          type="search"
+          autoComplete="off"
         />
       </div>
 
@@ -249,10 +249,10 @@ export default function ProductEditor({ products, onProductsChanged }) {
       ) : null}
 
       {filteredProducts.length > 0 ? (
-        <div className="admin-product-list">
+        <div className="admin-product-list" role="list" aria-label="Product search results">
           {filteredProducts.map((product) => (
-            <div className="admin-product-row" key={product.id}>
-              <div>
+            <div className="admin-product-row" key={product.id} role="listitem">
+              <div className="admin-product-info">
                 <strong>{product.sr}. {product.productName}</strong>
                 <span>
                   W {product.wPrice ?? '-'} · R {product.rPrice ?? '-'} · {product.priceType} · {product.material}
@@ -264,6 +264,7 @@ export default function ProductEditor({ products, onProductsChanged }) {
                   type="button"
                   onClick={() => handleStartEdit(product)}
                   disabled={isSaving}
+                  aria-label={`Edit ${product.productName}`}
                 >
                   Edit
                 </button>
@@ -272,6 +273,7 @@ export default function ProductEditor({ products, onProductsChanged }) {
                   type="button"
                   disabled={isSaving}
                   onClick={() => handleDelete(product)}
+                  aria-label={`Delete ${product.productName}`}
                 >
                   Delete
                 </button>

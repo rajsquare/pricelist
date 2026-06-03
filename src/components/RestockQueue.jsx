@@ -36,6 +36,7 @@ function ActiveItem({ request, onComplete }) {
         className="restock-complete-btn"
         type="button"
         title="Mark as completed"
+        aria-label={`Mark ${request.productName ?? 'item'} as restocked`}
         disabled={completing}
         onClick={handleComplete}
       >
@@ -78,6 +79,7 @@ function CompletedItem({ request, onDelete }) {
         className="restock-delete-btn"
         type="button"
         title="Delete permanently"
+        aria-label={`Delete completed restock for ${request.productName ?? 'item'}`}
         disabled={deleting}
         onClick={handleDelete}
       >

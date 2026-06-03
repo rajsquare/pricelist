@@ -1,9 +1,15 @@
+import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { fetchProducts } from '../services/productService.js';
 import { productsToCsv } from '../utils/csvProducts.js';
 
-export default function CSVExporter({ products }) {
-  function handleExport() {
+export default function CSVExporter() {
+  const [isExporting, setIsExporting] = useState(false);
+
+  async function handleExport() {
     try {
+      setIsExporting(true);
+      const products = await fetchProducts();
       const csv = productsToCsv(products);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -16,6 +22,8 @@ export default function CSVExporter({ products }) {
       toast.success('CSV export ready');
     } catch (error) {
       toast.error(error.message || 'CSV export failed');
+    } finally {
+      setIsExporting(false);
     }
   }
 
@@ -25,8 +33,8 @@ export default function CSVExporter({ products }) {
         <h3>CSV Export</h3>
         <span>Strict schema</span>
       </div>
-      <button className="secondary-button" type="button" onClick={handleExport}>
-        Export Products CSV
+      <button className="secondary-button" type="button" disabled={isExporting} onClick={handleExport}>
+        {isExporting ? 'Exporting...' : 'Export Products CSV'}
       </button>
     </section>
   );
