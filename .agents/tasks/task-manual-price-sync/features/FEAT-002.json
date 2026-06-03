@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Implement the manual global price sync mechanism. This includes: (1) a sync signal service using a Firestore document 'meta/syncSignal' that the admin writes to when triggering a sync, (2) a real-time onSnapshot listener on the employee HomePage that watches this signal document and auto-refreshes prices when it changes, (3) a 'Sync Prices to All Devices' button in the AdminPage under the product management section, and (4) CSS styling for the new button.",
-  "status": "pending",
+  "status": "completed",
   "steps": [
     "Step 1: Create a new service file src/services/syncService.js that exports two functions: (a) triggerGlobalSync() - writes a new timestamp to Firestore doc 'meta/syncSignal' with field {lastSyncAt: Date.now(), triggeredBy: 'admin'}. This is what the admin button calls. (b) onSyncSignalChange(callback) - sets up an onSnapshot listener on 'meta/syncSignal' and calls the callback whenever the document changes (skip the initial snapshot to avoid unnecessary refetch on page load). Returns an unsubscribe function. Import {doc, setDoc, onSnapshot} from 'firebase/firestore' and {db} from './firebase.js'.",
     "Step 2: Modify src/pages/AdminPage.jsx to add a 'Sync Prices to All Devices' button. Add it as a new admin-card section positioned AFTER the ProductEditor and BEFORE the admin-grid (CSV import/export). Import triggerGlobalSync from syncService.js. The button should: show a confirmation dialog ('Push latest prices to all employee devices?'), call triggerGlobalSync(), show a toast success message ('Prices synced to all devices'), handle errors with toast.error. Include state for isSyncing to disable the button during the operation. The section should have a heading 'Price Sync' with explanatory text 'Push the latest prices to all currently connected employee devices.'",
@@ -26,5 +26,5 @@
     "Verify HomePage.jsx imports and uses onSyncSignalChange with proper cleanup"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All 4 steps implemented successfully. Build passes with exit code 0. The chunk size warning (596KB > 500KB) is pre-existing and not caused by this change. No test framework exists so build success is the verification."
 }
