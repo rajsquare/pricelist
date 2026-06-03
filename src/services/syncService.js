@@ -31,6 +31,8 @@ export function onSyncSignalChange(callback) {
       return;
     }
     callback();
+  }, (error) => {
+    console.error('Sync listener error:', error);
   });
 
   return unsubscribe;

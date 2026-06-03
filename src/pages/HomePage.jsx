@@ -47,10 +47,14 @@ export default function HomePage() {
 
   useEffect(() => {
     const unsubscribe = onSyncSignalChange(async () => {
-      localStorage.removeItem('pricelist_catalog_cache');
-      const freshProducts = await fetchCatalogWithCache();
-      setProducts(prepareProductsForSearch(freshProducts));
-      toast('Prices updated', { icon: '\u{1F504}' });
+      try {
+        const freshProducts = await fetchCatalogWithCache();
+        localStorage.removeItem('pricelist_catalog_cache');
+        setProducts(prepareProductsForSearch(freshProducts));
+        toast('Prices updated', { icon: '\u{1F504}' });
+      } catch (error) {
+        toast.error('Failed to refresh prices');
+      }
     });
 
     return unsubscribe;
