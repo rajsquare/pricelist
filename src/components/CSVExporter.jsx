@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { fetchProducts } from '../services/productService.js';
+import { fetchCatalog } from '../services/productService.js';
 import { productsToCsv } from '../utils/csvProducts.js';
 
 export default function CSVExporter() {
@@ -9,7 +9,7 @@ export default function CSVExporter() {
   async function handleExport() {
     try {
       setIsExporting(true);
-      const products = await fetchProducts();
+      const products = await fetchCatalog();
       const csv = productsToCsv(products);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
