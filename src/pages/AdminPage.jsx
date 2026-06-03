@@ -1,0 +1,221 @@
+import { useCallback, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import AuditTable from '../components/AuditTable.jsx';
+import CSVExporter from '../components/CSVExporter.jsx';
+import CSVImporter from '../components/CSVImporter.jsx';
+import PasswordGate from '../components/PasswordGate.jsx';
+import ProductEditor from '../components/ProductEditor.jsx';
+import RestockQueue from '../components/RestockQueue.jsx';
+import PriceRequestQueue from '../components/PriceRequestQueue.jsx';
+import SyncButton from '../components/SyncButton.jsx';
+import { adminConfig } from '../constants/config.js';
+import { fetchAuditLogs } from '../services/auditService.js';
+import { fetchProducts } from '../services/productService.js';
+import {
+  fetchActiveRestockRequests,
+  fetchCompletedRestockRequests,
+} from '../services/restockService.js';
+
+import {
+  fetchPendingPriceRequests,
+} from '../services/priceRequestService.js';
+
+export default function AdminPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    () => localStorage.getItem(adminConfig.storageKey) === 'true',
+  );
+
+  const [products, setProducts] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [activeRequests, setActiveRequests] = useState([]);
+  const [completedRequests, setCompletedRequests] = useState([]);
+  const [priceRequests, setPriceRequests] = useState([]);
+
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [isLoadingAudit, setIsLoadingAudit] = useState(false);
+  const [isLoadingRestock, setIsLoadingRestock] = useState(false);
+
+  const [loadError, setLoadError] = useState('');
+
+  const loadProducts = useCallback(async () => {
+    try {
+      setIsLoadingProducts(true);
+      setProducts(await fetchProducts());
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  }, []);
+
+  const loadAuditLogs = useCallback(async () => {
+    try {
+      setIsLoadingAudit(true);
+      setAuditLogs(await fetchAuditLogs());
+    } finally {
+      setIsLoadingAudit(false);
+    }
+  }, []);
+
+  const loadRestockRequests = useCallback(async () => {
+    try {
+      setIsLoadingRestock(true);
+
+      const [active, completed] = await Promise.all([
+        fetchActiveRestockRequests(),
+        fetchCompletedRestockRequests(),
+      ]);
+
+      setActiveRequests(active);
+      setCompletedRequests(completed);
+    } finally {
+      setIsLoadingRestock(false);
+    }
+  }, []);
+
+  const loadPriceRequests = useCallback(async () => {
+    const requests = await fetchPendingPriceRequests();
+    setPriceRequests(requests);
+  }, []);
+
+  const refreshAdminData = useCallback(async () => {
+    setLoadError('');
+
+    try {
+      await Promise.all([
+        loadProducts(),
+        loadAuditLogs(),
+        loadRestockRequests(),
+        loadPriceRequests(),
+      ]);
+    } catch (error) {
+      setLoadError(error.message || 'Unable to load admin data.');
+    }
+  }, [
+    loadAuditLogs,
+    loadProducts,
+    loadRestockRequests,
+  ]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      refreshAdminData();
+    }
+  }, [isAuthenticated, refreshAdminData]);
+
+  async function handleProductsChanged(opts) {
+    if (opts && opts.action) {
+      const { action, product } = opts;
+      if (action === 'created') {
+        setProducts((prev) => {
+          const next = [...prev, product];
+          next.sort((a, b) => a.sr - b.sr);
+          return next;
+        });
+        setAuditLogs((prev) => [
+          { id: 'local-' + Date.now(), action: 'PRODUCT_CREATED', before: null, after: product, createdAt: { toMillis: () => Date.now(), toDate: () => new Date() } },
+          ...prev,
+        ]);
+      } else if (action === 'updated') {
+        setProducts((prev) => prev.map((p) => (p.id === product.id ? product : p)));
+        setAuditLogs((prev) => [
+          { id: 'local-' + Date.now(), action: 'PRODUCT_UPDATED', before: null, after: product, createdAt: { toMillis: () => Date.now(), toDate: () => new Date() } },
+          ...prev,
+        ]);
+      } else if (action === 'deleted') {
+        setProducts((prev) => prev.filter((p) => p.id !== product.id));
+        setAuditLogs((prev) => [
+          { id: 'local-' + Date.now(), action: 'PRODUCT_DELETED', before: product, after: null, createdAt: { toMillis: () => Date.now(), toDate: () => new Date() } },
+          ...prev,
+        ]);
+      }
+    } else {
+      await Promise.all([
+        loadProducts(),
+        loadAuditLogs(),
+      ]);
+    }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem(adminConfig.storageKey);
+
+    setIsAuthenticated(false);
+    setProducts([]);
+    setAuditLogs([]);
+    setActiveRequests([]);
+    setCompletedRequests([]);
+
+    toast.success('Logged out');
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <PasswordGate
+        onAuthenticated={() => setIsAuthenticated(true)}
+      />
+    );
+  }
+
+  return (
+    <section className="admin-page">
+      <div className="admin-toolbar">
+        <div>
+          <h2>Admin</h2>
+          <p>Inventory management</p>
+        </div>
+
+        <div className="admin-toolbar__actions">
+          <SyncButton />
+          <button
+            className="danger-button"
+            type="button"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+
+      {loadError ? (
+        <div className="form-error">
+          {loadError}
+        </div>
+      ) : null}
+
+      {isLoadingProducts ? (
+        <div
+          className="admin-card admin-muted"
+          style={{ padding: '14px' }}
+        >
+          Loading products...
+        </div>
+      ) : null}
+
+      <ProductEditor
+        products={products}
+        onProductsChanged={handleProductsChanged}
+      />
+
+      <div className="admin-grid">
+        <CSVImporter onImported={handleProductsChanged} />
+        <CSVExporter products={products} />
+      </div>
+
+      <AuditTable
+        logs={auditLogs}
+        isLoading={isLoadingAudit}
+      />
+
+      <PriceRequestQueue
+        requests={priceRequests}
+        onChanged={loadPriceRequests}
+      />
+
+      <RestockQueue
+        activeRequests={activeRequests}
+        completedRequests={completedRequests}
+        isLoading={isLoadingRestock}
+        onChanged={loadRestockRequests}
+      />
+    </section>
+  );
+}

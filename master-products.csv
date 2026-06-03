@@ -1,0 +1,467 @@
+sr,productName,wPrice,priceType,rPrice,Material
+1,Nirmal Saucepan Baby,1580,KG,1830,Brass
+2,Nirmal Saucepan Regular,1370,KG,1600,Brass
+3,Nirmal Kadhai + Lid Mathar,1480,KG,1700,Brass
+4,Nirmal Mathar Saucepan + Lid,1430,KG,1700,Brass
+5,Nirmal Deep Frying Pan,1480,KG,1700,Brass
+6,Nirmal Parat,1430,KG,1600,Brass
+7,Nirmal Sipri,1430,KG,1600,Brass
+8,Nirmal Sipri,1750,KG,2100,Copper
+9,Chirag Gadu,1720,KG,1960,Copper
+10,Chirag Gangal,1800,KG,2040,Copper
+11,Chirag Navrang,,KG,,-
+12,Chirag Pawali 1-6,1650,KG,1960,Copper
+13,Chirag Pawali 7-8,1670,KG,1950,Copper
+14,Chirag Kulfi Matka,1720,KG,1960,Copper
+15,Chirag Taman,1680,KG,2000,Copper
+16,Dessert bowl,1400,KG,1700,Brass
+17,Print Tilak Thal up to 24 inch,1000,KG,1120,Brass
+18,Print Tilak Thal 25-26 inch,1020,KG,1120,Brass
+19,Print Tilak Thal 27 inch and above,1070,KG,1200,Brass
+20,Jalebi Thal up to 24 inch,1040,KG,1240,Brass
+21,Jalebi Thal 25 inch and above,1060,KG,1220,Brass
+22,Plain Thali 10.5 inch,1100,KG,1220,Brass
+23,Plain Thali,1050,KG,1240,Brass
+24,Print Thali,1120,KG,1220,Brass
+25,Handa,1070,KG,1220,Brass
+26,Kalsi Big,1100,KG,1220,Brass
+27,Kalsi Small,1150,KG,1220,Brass
+28,Nakshi Kalsi,2330,PP,2700,Brass
+29,Katora,1070,KG,1220,Brass
+30,Lota / Glass,1090,KG,1220,Brass
+31,Palta,1020,KG,1340,Brass
+32,Kalchul / Golchi,1150,KG,1400,Brass
+33,Kajrota Gol Small,80,PP,100,Brass
+34,Kajrota Gol Big,110,PP,170,Brass
+35,Kajrota Pan Small,100,PP,160,Brass
+36,Kajrota Pan Big,110,PP,220,Brass
+37,Batoi,1020,KG,1220,Brass
+38,Batoi Light Weight,1070,KG,1220,Brass
+39,Shubh Vivah Kalsa Set,2600,PP,2900,Brass
+40,Goli,1430,KG,1600,Brass
+41,Kodam Plain,1780,KG,2040,Brass
+42,Kodam Nakshi,1880,KG,2100,Brass
+43,Supda,970,KG,1220,Brass
+44,Ghamela,1020,KG,1340,Brass
+45,Ghamela Sheet,1530,KG,1840,Brass
+46,Chuna Stick,110,PP,170,Brass
+47,Masala Box Coloured,1830,KG,2040,Brass
+48,Masala Box Light Small,740,PP,950,Brass
+49,Masala Roti Box Small,1830,KG,2040,Brass
+50,Masala Roti Box Big,1730,KG,2040,Brass
+51,Masala Box Jumbo,1830,KG,2040,Brass
+52,Masala Box Square 4,1800,PP,2100,Brass
+53,Masala Box Square 6,2440,PP,2700,Brass
+54,Masala Box Square 9,2970,PP,3400,Brass
+55,Rolex Dabba,1850,KG,2240,Brass
+56,Ubha Dabba Kalai,1730,KG,1940,Brass
+57,Ubha Dabba 1-5,1730,KG,1940,Brass
+58,Ubha Dabba 6-11,1630,KG,1940,Brass
+59,Antique Peti,1730,KG,1940,Brass
+60,Panpeti 0,2440,PP,2800,Brass
+61,Panpeti 1,2970,PP,3400,Brass
+62,Panpeti 2,3500,PP,3920,Brass
+63,Panpeti Jali Small,1800,PP,2000,Brass
+64,Panpeti Jali Big,2010,PP,2340,Brass
+65,Square Ubha Dabba 1,1060,PP,1260,Brass
+66,Square Ubha Dabba 2,1270,PP,1500,Brass
+67,Square Ubha Dabba 3,1480,PP,1700,Brass
+68,Jar 1,1060,PP,1260,Brass
+69,Jar 2,1270,PP,1500,Brass
+70,Jar 3,1480,PP,1700,Brass
+71,Laddoo Box,1680,KG,2040,Brass
+72,Coffee Filter Plain 1,640,PP,850,Brass
+73,Coffee Filter Plain 2,740,PP,950,Brass
+74,Coffee Filter Plain 3,900,PP,1060,Brass
+75,Coffee Filter Plain 4,1010,PP,1260,Brass
+76,Coffee Filter Stand Tap Set,6300,PP,6900,Brass
+77,Coffee Filter Hammered 1,690,PP,850,Brass
+78,Coffee Filter Hammered 2,800,PP,960,Brass
+79,Coffee Filter Hammered 3,900,PP,1060,Brass
+80,Coffee Filter Hammered 4,1010,PP,1160,Brass
+81,Coffee Filter Hammered 5,1110,PP,1260,Brass
+82,Tea Coffee Sugar Dabba,1380,PP,1600,Brass
+83,Masala Box Rectangular,3500,PP,3920,Brass
+84,Dry Fruit Box Rectangular,2970,PP,3400,Brass
+85,Chilamchi Badna Big,5720,PP,6300,Brass
+86,Chilamchi Badna Small,4030,PP,4500,Brass
+87,Badna Only,2230,PP,2340,Brass
+88,Chilamchi Only,2010,PP,2100,Brass
+89,Chilamchi Badna Set,5720,PP,6300,Copper
+90,Badna Only,3180,PP,3820,Copper
+91,Chilamchi Only,2760,PP,3200,Copper
+92,Diamond Badna,1430,KG,1700,Brass
+93,Diamond Badna K2,740,PP,840,Brass
+94,Diamond Badna K3,850,PP,960,Brass
+95,Diamond Badna K4,950,PP,1040,Brass
+96,Diamond Badna K5,1060,PP,1260,Brass
+97,Discount (Less),,PP,,-
+98,Kettle 2 Cup,1010,PP,1160,Brass
+99,Kettle 500 ml ,1270,PP,1500,Brass
+100,Kettle 500 ml ,1480,PP,1700,Copper
+101,Kettle 1 L ,1750,PP,1900,Brass
+102,Kettle 1 L ,1960,PP,2340,Copper
+103,Kettle 1.5 L,2230,PP,2500,Brass
+104,Kettle 2 L ,2760,PP,3200,Brass
+105,Kettle 2 L ,3070,PP,3600,Copper
+106,Kettle 3 L ,3390,PP,3920,Brass
+107,Kettle 3 L ,4240,PP,5000,Copper
+108,Kettle 5 L and Brass and Copper,6000,PP,6400,-
+109,Kettle Round 500 ml ,1270,PP,1360,Brass
+110,Kettle Round 1 L ,1750,PP,1900,Brass
+111,Badna 16,800,PP,1020,Brass
+112,Badna 18,850,PP,1100,Brass
+113,Badna 20,900,PP,1220,Brass
+114,Badna 22,1010,PP,1340,Brass
+115,Ring Patiya ,1530,KG,1840,Brass
+116,Ring Patiya ,1900,KG,2200,Copper
+117,Joint Degchi / Nirmal Degchi,1680,KG,1880,Brass
+118,Degchi with Lid Set of 4,1730,KG,1940,Brass
+119,Sheet Degchi ,1630,KG,1940,Brass
+120,Sheet Degchi ,1950,KG,2240,Copper
+121,Patili Cover ,1830,KG,2040,Brass
+122,Patili Cover ,2050,KG,2240,Copper
+123,Hyderabadi ,1680,KG,1920,Brass
+124,Hyderabadi With Handle,1950,KG,2240,Copper
+125,Hyderabadi No Handle,2050,KG,2240,Copper
+126,Coffee Pot 1,580,PP,740,Brass
+127,Coffee Pot 2,690,PP,850,Brass
+128,Coffee Pot 3,800,PP,1060,Brass
+129,Lucknowee Sipri 1-4,1330,KG,1500,Brass
+130,Lucknowee Sipri 5-6,1350,KG,1520,Brass
+131,Lucknowee Sipri 1-4,1750,KG,2100,Copper
+132,Lucknowee Sipri 5-6,1770,KG,2040,Copper
+133,Rice Handi ,1480,KG,1800,Brass
+134,Rice Handi without bidding,1405,KG,1740,Brass
+135,Rice Handi 0 / 4,1530,KG,1800,Brass
+136,Rice Handi ,1900,KG,2240,Copper
+137,Ring Deg ,1530,KG,1700,Brass
+138,Ring Deg ,1850,KG,2040,Copper
+139,Steamer ,4240,PP,4800,Copper
+140,Acrylic Pot 1,1270,PP,1500,Brass
+141,Acrylic Pot 2,1480,PP,1700,Brass
+142,Acrylic Pot 3,1700,PP,2000,Brass
+143,Acrylic Pot 1,1480,PP,1800,Copper
+144,Acrylic Pot 2,1700,PP,2000,Copper
+145,Acrylic Pot 3,1910,PP,2340,Copper
+146,Rice Pot 1,1060,PP,1260,Brass
+147,Rice Pot 2,1330,PP,1600,Brass
+148,Rice Pot 3,1540,PP,1900,Brass
+149,Rice Pot 4,1750,PP,2100,Brass
+150,Ghee Pot New Model,850,PP,1000,Brass
+151,Ghee Pot Small,640,PP,750,Brass
+152,Ghee Pot Big,800,PP,1020,Brass
+153,Urli Standard,1410,KG,1640,Brass
+154,Urli 18-20,1460,KG,1640,Brass
+155,Urli Nakshi,1730,KG,1940,Brass
+156,Elephant Urli,1710,KG,1920,Brass
+157,Idli Pot Small,4900,PP,5500,Brass
+158,Idli Pot Big,6200,PP,7200,Brass
+159,Tea Stand 4,420,PP,530,Brass
+160,Tea Stand 6,530,PP,740,Brass
+161,Basket Oval,1730,KG,2040,Brass
+162,Basket Oval Nakshi,1730,KG,2040,Brass
+163,Khalbatta Regular,1200,KG,1360,Brass
+164,Khalbatta Medical,1300,KG,1500,Brass
+165,Planter ,1630,KG,1940,Brass
+166,Cup and Saucer Hammered ,420,PP,530,Brass
+167,Cup and Saucer Nakshi,420,PP,530,Brass
+168,Cup and Saucer Hammered ,580,PP,630,Copper
+169,Chakla Belan,1330,KG,1520,Brass
+170,Gangal,1680,KG,1920,Brass
+171,Gangal 20-24,1650,KG,1960,Copper
+172,Gangal 28,1900,KG,2240,Copper
+173,Tiffin (2),2800,PP,2700,Brass
+174,Tiffin (3),3600,PP,2900,Brass
+175,Tiffin (4),4300,PP,3600,Brass
+176,Tiffin Wire Small,2330,PP,2700,Brass
+177,Tiffin Wire Big,2540,PP,2900,Brass
+178,Fruit Carving Bowl Kalash Nakshi,1880,KG,2200,Brass
+179,Tawa without Handle,1270,KG,1500,Brass
+180,Tawa Handle,1170,KG,1500,Brass
+181,Tawa Hammered,1330,KG,1520,Brass
+182,Dosa Tawa Set,2600,PP,3000,Brass
+183,Gol Deg,2000,KG,2300,Copper
+184,Tadka Pan 1,2200,PP,850,Brass
+185,Tadka Pan 2,2200,PP,950,Brass
+186,Tadka Pan 3,2200,PP,1050,Brass
+187,Chutney Stand,1830,KG,2240,Brass
+188,Coffee Davara Plain / Matte,260,PP,320,Brass
+189,Coffee Davara E / H,310,PP,370,Brass
+190,Coffee Davara ,420,PP,530,Copper
+191,Tea Chalni,370,PP,480,Brass
+192,Bujara,370,PP,530,Brass
+193,Mukai Stand,1430,KG,1600,Brass
+194,Bucket 18-24,1230,KG,1340,Brass
+195,Bucket 14-16,1250,KG,1340,Brass
+196,Bucket 12,1430,KG,1600,Brass
+197,Saucepan Hammered,1380,KG,1640,Brass
+198,Ugal Dan,1020,KG,1220,Brass
+199,Sheet Kadhai,1150,KG,1400,Brass
+200,Tong,320,PP,430,Brass
+201,Chamukha 2,2650,PP,3200,Brass
+202,Chamukha 3,3180,PP,3700,Brass
+203,Chamukha 4,3710,PP,4200,Brass
+204,Ashok Pillar,530,PP,640,Brass
+205,Bell 1,320,PP,430,Brass
+206,Only Cup,320,PP,430,Brass
+207,Ring Langdi Fancy ,1530,KG,1800,Brass
+208,Parampara Lagan ,1580,KG,1830,Brass
+209,Parampara Lagan ,2000,KG,2300,Copper
+210,Pawali / Bucket Nakshi,2030,KG,2340,Brass
+211,Pawali ,1270,KG,1360,Brass
+212,Pawali ,1750,KG,1860,Copper
+213,Top 10-28,1150,KG,1220,Brass
+214,Top 29-36,1170,KG,1300,Brass
+215,Top 38-42,1320,KG,1400,Brass
+216,Top 44-48,1340,KG,1400,Brass
+217,Top 50-52,1360,KG,1450,Brass
+218,Top Kalai +Polish +H 8-12,1380,KG,1500,Brass
+219,Top Kalai +Polish +H 13 and above,1280,KG,1500,Brass
+220,Chai Tea Top,1120,KG,1220,Brass
+221,Langdi,1170,KG,1320,Brass
+222,Langdi K+P,1280,KG,1500,Brass
+223,Tasla Kadhai 6-7,1200,KG,1330,Brass
+224,Tasla Kadhai 8-14,1100,KG,1230,Brass
+225,Tasla Kadhai 15-24,1250,KG,1350,Brass
+226,Tasla Kadhai 26-29,1350,KG,1450,Brass
+227,Tasla Kadhai K+P 6-7,1250,KG,1440,Brass
+228,Tasla Kadhai K+P 8-14,1150,KG,1330,Brass
+229,Top Joint Bottom,1160,KG,1220,Brass
+230,Langdi Joint Bottom,1180,KG,1240,Brass
+231,Langdi Joint Bottom,1700,KG,1800,Copper
+232,Langdi Regular,1750,KG,2100,Copper
+233,Tavi K+P,1800,KG,1960,Copper
+234,Tavi K+P,1480,KG,1700,Brass
+235,Patiya Regular,1750,KG,1860,Copper
+236,Patiya K+P Regular,1850,KG,2040,Copper
+237,Patiya Heavy K+P,1850,KG,2040,Copper
+238,Parat Bidding,1355,KG,1560,Brass
+239,Parat 10,1470,KG,1600,Brass
+240,Parat 11-13,1160,KG,1320,Brass
+241,Parat 14,1160,KG,1320,Brass
+242,Parat 15,1080,KG,1220,Brass
+243,Parat 16-24,1060,KG,1220,Brass
+244,Parat 25-30,1110,KG,1220,Brass
+245,Parat 32-36,1160,KG,1220,Brass
+246,Parat 13-14,1700,KG,2040,Copper
+247,Parat 15-24,1700,KG,2040,Copper
+248,Parat 25-30,1850,KG,2040,Copper
+249,Parat Bidding,1750,KG,2100,Copper
+250,Parsi Patiya K+P,1750,KG,2100,Copper
+251,Parat Etching,2000,KG,2240,Copper
+252,Kadhai Special Small,1850,KG,2040,Copper
+253,Chaliya,1950,KG,2240,Copper
+254,Tasla Kadhai,1850,KG,2040,Copper
+255,Tasla Kadhai K+P,2050,KG,2240,Copper
+256,Tasla Kadhai Heavy,1850,KG,2240,Copper
+257,Samavar Kettle 0-12,1700,KG,1860,Copper
+258,Samavar Kettle 13 ,1800,KG,1960,Copper
+259,Top Regular,1750,KG,2100,Copper
+260,Top Heavy,1850,KG,2160,Copper
+261,Top Joint Bottom,1700,KG,1800,Copper
+262,Frying Pan,1900,KG,2240,Copper
+263,Deg / Sipri Heavy K+P,2000,KG,2200,Copper
+264,Lucknowee 10,1780,KG,1860,Copper
+265,Lucknowee 12-24,1725,KG,1885,Copper
+266,Lucknowee 26-30,1800,KG,1960,Copper
+267,Lucknowee 32-40,1800,KG,1960,Copper
+268,Mahi Tawa,1850,KG,2040,Copper
+269,Lid 8-14,1750,KG,2240,Copper
+270,Lid 6-7.5,1850,KG,2240,Copper
+271,Lid 8-14,1120,KG,1420,Brass
+272,Lid 6-7.5,1320,KG,1500,Brass
+273,Sheet Top,1300,KG,1600,Brass
+274,Polished Top Plain,1330,KG,1600,Brass
+275,Polished Top Hammered,1380,KG,1640,Brass
+276,Chat Handi,1270,KG,1420,Brass
+277,Glass New A,300,PP,320,Brass
+278,Glass New B,320,PP,370,Brass
+279,Glass New C,350,PP,420,Brass
+280,3 No Glass,110,PP,170,Brass
+281,4 No Glass,130,PP,220,Brass
+282,Hammered Glass Pendi,260,PP,320,Brass
+283,Etching Glass Pendi,260,PP,320,Brass
+284,15 No Glass,,PP,,Brass
+285,18 No Glass,350,PP,420,Brass
+286,24 No Glass,420,PP,530,Brass
+287,6 No Glass,530,PP,640,Brass
+288,7 No Glass,640,PP,750,Brass
+289,8 No Glass,740,PP,840,Brass
+290,9 No Glass,850,PP,1060,Brass
+291,Prince Glass,370,PP,420,Brass
+292,Ringer Matki Glass,370,PP,420,Brass
+293,Ringer V 5 No Glass,420,PP,470,Brass
+294,Sheet Glass,1680,KG,2040,Brass
+295,Curve Glass Small,280,PP,320,Brass
+296,Curve Glass Big,300,PP,380,Brass
+297,Wine Champagne Glass,480,PP,640,Brass
+298,Utensils,,KG,,-
+299,Packing + Forwarding,250,PP,250,-
+300,Matte Glass,300,PP,380,Brass
+301,Toy Set Small,2970,PP,3400,Brass
+302,Toy Set Big,3180,PP,3700,Brass
+303,Jug Hotel,1330,PP,1600,Brass
+304,Jug Kingfisher,1430,PP,1600,Brass
+305,Jug Prince Peacock,1800,PP,2100,Brass
+306,Jug Prince Peacock Cover,1910,PP,2340,Brass
+307,Jug Ringer,1480,PP,1800,Brass
+308,Jug Ringer Matki,1480,PP,1800,Brass
+309,Jug Sheet Hammered Cover Small,1430,PP,1640,Brass
+310,Jug Sheet Hammered Cover Big,1640,PP,1900,Brass
+311,Bottle HV Small,580,PP,740,Copper
+312,Bottle HV Big,740,PP,840,Copper
+313,Bottle Crown,740,PP,840,Copper
+314,Bottle Doctor,690,PP,850,Copper
+315,Bottle Tower,690,PP,850,Copper
+316,Lily Jar / Jug,950,PP,1160,Copper
+317,Rose Jar / Jug,850,PP,1060,Copper
+318,Jug Two Tone Mughal Small,1640,PP,1900,Copper
+319,Jug Two Tone Mughal Big,1860,PP,2100,Copper
+320,Jug Two Tone Straight Small,1640,PP,1900,Copper
+321,Jug Two Tone Straight Big,1860,PP,2100,Copper
+322,Glass Special,2200,KG,2500,Copper
+323,Glass ST,150,PP,190,Copper
+324,Wine Champagne Glass,640,PP,850,Brass
+325,Utensils Mix,2800,KG,3200,Kansa
+326,Glass Small,500,PP,600,Kansa
+327,Glass Big,800,PP,1000,Kansa
+328,Spoon Baby,200,PP,250,Kansa
+329,Spoon Dessert,250,PP,300,Kansa
+330,Serving Spoon,900,PP,1100,Kansa
+331,Thali Khumcha 8-14,1380,KG,1600,Brass
+332,Thali Khumcha 15-20,1460,KG,1640,Brass
+333,Thali Khumcha 20 and above,1560,KG,1700,Brass
+334,ST Dalda,1300,KG,1600,Brass
+335,Jali Thali,1270,KG,1500,Brass
+336,Pan Thal,1480,KG,1800,Brass
+337,Matte Thali Wati,1380,KG,1520,Brass
+338,Liner,1530,KG,1700,Brass
+339,Rectangular Oval Tray,1530,KG,1700,Brass
+340,Dana Plate,1530,KG,1840,Brass
+341,Dana Plate,1650,KG,1860,Copper
+342,China Plate,1430,KG,1700,Brass
+343,Designer Plate,1930,KG,2240,Brass
+344,Plate Pandu,1550,KG,2040,Copper
+345,Tray,1950,KG,2240,Copper
+346,Tray Without Dana,1950,KG,2240,Copper
+347,Bhojan Patra,1530,KG,1700,Brass
+348,Thali Plain Base,1800,KG,2040,Copper
+349,Thali 10-14,1800,KG,2040,Copper
+350,Thali Big,2050,KG,2240,Copper
+351,Banana Leaf Thali,1530,KG,1800,Brass
+352,Maharaja Thali,1700,KG,1700,Brass
+353,Swastik Thali,1530,KG,1700,Brass
+354,Thali / Bowl Rose,1580,KG,1740,Brass
+355,Thali Set Sanskriti Glossy,2300,PP,2700,Brass
+356,Massager Small,700,PP,900,Kansa
+357,Massager Medium,800,PP,1000,Kansa
+358,Massager Double Head,900,PP,1200,Kansa
+359,Massage Wati,400,PP,500,Kansa
+360,Handmade,4000,KG,4600,Kansa
+361,Set Pure,5500,PP,6300,Kansa
+362,Handmade Maharaja Thali 16 inch,4000,KG,4400,Kansa
+363,Serving Bowl Handmade,2600,KG,3000,Kansa
+364,Glass Small Handmade,600,PP,700,Kansa
+365,Glass Big Handmade,800,PP,1000,Kansa
+366,Set Plain,2900,PP,3200,Kansa
+367,Set Laser,3000,PP,3400,Kansa
+368,Lotus Bowl,1600,KG,1850,Brass
+369,Bowl Small Special,600,PP,800,Kansa
+370,Donga Small Special,3800,PP,4400,Kansa
+371,Hammered Lota 0,1430,KG,1600,Brass
+372,Hammered Lota 1-3,1380,KG,1640,Brass
+373,Nakshi Lota 0,1380,KG,1640,Brass
+374,Nakshi Lota 1-4,1330,KG,1640,Brass
+375,Halwa Lota,1170,KG,1600,Brass
+376,Japani Lota 300 g,640,PP,750,Brass
+377,Japani Lota 400 g,690,PP,850,Brass
+378,Japani Lota 500 g,800,PP,960,Brass
+379,Japani Lota 600 g,1010,PP,1160,Brass
+380,Japani Lota 700 g,1220,PP,1400,Brass
+381,Japani Lota 900 g,1430,PP,1600,Brass
+382,Japani Lota 1 kg,1700,PP,2000,Brass
+383,Japani Lota 1.25 kg,1910,PP,2500,Brass
+384,Japani Lota 2 kg,3070,PP,3600,Brass
+385,Hammered Lota 8,530,PP,640,Copper
+386,Hammered Lota 9,640,PP,750,Copper
+387,Lota Box 1,400,PP,470,Brass
+388,Lota Box 2,450,PP,540,Brass
+389,Lota Box 3,530,PP,640,Brass
+390,Lota Box 4,580,PP,740,Brass
+391,Lota Box 5,690,PP,850,Brass
+392,Lota with Lid (Shambhu Lota),950,PP,1160,Brass
+393,Plain Lota,1330,KG,1520,Brass
+394,Sheet Lota J,1630,KG,1840,Brass
+395,Handmade Lota,950,PP,1200,Kansa
+396,Bell,850,PP,1000,Kansa
+397,Hammered Spoon Coffee,60,PP,70,Brass
+398,Hammered Spoon Tea,70,PP,80,Brass
+399,Hammered Spoon Baby,80,PP,90,Brass
+400,Hammered Spoon Dessert,90,PP,100,Brass
+401,Knife Dessert,210,PP,320,Brass
+402,Pakkad,480,PP,640,Brass
+403,Wooden Handle,420,PP,530,Brass
+404,Handle,530,PP,640,Brass
+405,Serving Spoon Sheet Small,1800,PP,380,Brass
+406,Serving Spoon Sheet Medium,1800,PP,430,Brass
+407,Serving Spoon Sheet Big,1800,PP,480,Brass
+408,Full Hammered Serving Spoon S,370,PP,420,Brass
+409,Full Hammered Serving Spoon M,420,PP,470,Brass
+410,Full Hammered Serving Spoon L,480,PP,590,Brass
+411,Spoon Fork Matte Coffee,60,PP,70,Brass
+412,Spoon Fork Matte Tea,80,PP,100,Brass
+413,Spoon Fork Matte Baby,100,PP,130,Brass
+414,Spoon Fork Matte Dessert,110,PP,150,Brass
+415,Handmade Spoon Set,4770,PP,5300,Brass
+416,Wooden Handle SS Palta 15 inch,170,PP,190,Brass
+417,Wooden Handle SS Palta 20 inch,190,PP,210,Brass
+418,Wooden Handle SS Palta 25 inch,210,PP,230,Brass
+419,Wooden Handle SS Palta 30 inch,230,PP,260,Brass
+420,Wooden Handle SS Palta 35 inch,270,PP,320,Brass
+421,SS Palta 30-60,420,PP,530,Brass
+422,SS Dabbu 4,170,PP,190,Brass
+423,SS Dabbu 4.5,180,PP,210,Brass
+424,SS Dabbu 5,190,PP,230,Brass
+425,SS Dabbu 6,270,PP,320,Brass
+426,Donga Deep Hammered,1910,PP,2340,Brass
+427,Donga Flat Hammered,1910,PP,2340,Brass
+428,Donga 1,1910,PP,2340,Copper
+429,Donga 2,2120,PP,2500,Copper
+430,Donga 3,2330,PP,2800,Copper
+431,Donga 4,2540,PP,3200,Copper
+432,Dessert Donga,1530,KG,1700,Brass
+433,Casting Wati Etched Hammered,1350,KG,1600,Brass
+434,Sheet Wati Etched Hammered,1730,KG,2040,Brass
+435,Arabi Katora 1,280,PP,320,Brass
+436,Arabi Katora 2,320,PP,370,Brass
+437,Arabi Katora 3,370,PP,420,Brass
+438,Arabi Katora 4,420,PP,530,Brass
+439,Arabi Katora 5,530,PP,640,Brass
+440,Arabi Katora 6,640,PP,750,Brass
+441,Arabi Katora 7,740,PP,900,Brass
+442,Katora / Wati,2100,KG,2340,Copper
+443,Oval Dabba,1630,KG,1900,Brass
+444,Saunf Pot,530,PP,640,Brass
+445,Pickle Pot,690,PP,790,Brass
+446,Triangle Masala Box,2970,PP,3400,Brass
+447,Checked Dabba set of 3,1900,PP,2200,Brass
+448,Maharani Patili,1730,KG,2040,Brass
+449,Thali Set Sanskriti Matte,2300,PP,2700,Brass
+450,Premium Roti Box Coloured,1590,PP,1900,Brass
+451,Unbreakable Set Plain,,PP,,Kansa
+452,Unbreakable Set Hammered,9500,PP,9500,Kansa
+453,Checked Dabba 3 x 3,2100,PP,2400,Brass
+454,Oil Dispenser Jar,1330,PP,1600,Brass
+455,Laddoo Box Coloured (8),480,PP,690,Brass
+456,Laddoo Box Coloured (9),580,PP,790,Brass
+457,Laddoo Box Coloured (10),690,PP,900,Brass
+458,Plain Lota (0),1380,KG,1600,Brass
+459,Hammered Lota 10,740,PP,840,Copper
+460,Satari Lota,2500,PP,2900,Kansa
+461,Baby Set,3500,PP,4000,Kansa
+462,Donga (4),7400,PP,8500,Kansa
+463,Donga (5),8000,PP,9200,Kansa
+464,Donga (6),10400,PP,12000,Kansa
+465,Handmade Double Polished,4200,KG,4800,Kansa
+466,Kadhai / Saucepan / Frypan,4000,KG,4600,Kansa
