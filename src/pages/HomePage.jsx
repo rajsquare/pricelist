@@ -4,7 +4,7 @@ import PriceToggle from '../components/PriceToggle.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 import ProductDetailModal from '../components/ProductDetailModal.jsx';
 import SearchBar from '../components/SearchBar.jsx';
-import { fetchProducts } from '../services/productService.js';
+import { fetchCatalog } from '../services/productService.js';
 import { prepareProductsForSearch, searchProducts } from '../utils/searchEngine.js';
 
 export default function HomePage() {
@@ -22,7 +22,7 @@ export default function HomePage() {
     async function loadProducts() {
       try {
         setStatus('loading');
-        const fetchedProducts = await fetchProducts();
+        const fetchedProducts = await fetchCatalog();
 
         if (!isMounted) return;
 
