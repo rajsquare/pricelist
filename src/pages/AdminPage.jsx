@@ -11,40 +11,27 @@ import { adminConfig } from '../constants/config.js';
 import { fetchAuditLogs } from '../services/auditService.js';
 import { fetchPendingPriceRequests } from '../services/priceRequestService.js';
 import SyncButton from '../components/SyncButton.jsx';
-import { fetchCatalog } from '../services/productService.js';
+import { useCatalog } from '../contexts/CatalogContext.jsx';
 import {
   fetchActiveRestockRequests,
   fetchCompletedRestockRequests,
 } from '../services/restockService.js';
 
 export default function AdminPage() {
+  const { products, status: catalogStatus } = useCatalog();
+
   const [isAuthenticated, setIsAuthenticated] = useState(
     () => localStorage.getItem(adminConfig.storageKey) === 'true',
   );
 
-  const [products, setProducts] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [activeRequests, setActiveRequests] = useState([]);
   const [completedRequests, setCompletedRequests] = useState([]);
   const [priceRequests, setPriceRequests] = useState([]);
 
-  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [isLoadingAudit, setIsLoadingAudit] = useState(false);
   const [isLoadingRestock, setIsLoadingRestock] = useState(false);
   const [loadError, setLoadError] = useState('');
-
-  const loadProducts = useCallback(async () => {
-    try {
-      setIsLoadingProducts(true);
-      const fetched = await fetchCatalog();
-      setProducts(fetched);
-    } catch (error) {
-      // Propagate so caller can handle
-      throw error;
-    } finally {
-      setIsLoadingProducts(false);
-    }
-  }, []);
 
   const loadAuditLogs = useCallback(async () => {
     try {
@@ -78,7 +65,6 @@ export default function AdminPage() {
     setLoadError('');
     try {
       await Promise.all([
-        loadProducts(),
         loadAuditLogs(),
         loadRestockRequests(),
         loadPriceRequests(),
@@ -86,7 +72,7 @@ export default function AdminPage() {
     } catch (error) {
       setLoadError(error.message || 'Unable to load admin data.');
     }
-  }, [loadAuditLogs, loadProducts, loadRestockRequests, loadPriceRequests]);
+  }, [loadAuditLogs, loadRestockRequests, loadPriceRequests]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -95,13 +81,12 @@ export default function AdminPage() {
   }, [isAuthenticated, refreshAdminData]);
 
   async function handleProductsChanged() {
-    await Promise.all([loadProducts(), loadAuditLogs()]);
+    await loadAuditLogs();
   }
 
   function handleLogout() {
     localStorage.removeItem(adminConfig.storageKey);
     setIsAuthenticated(false);
-    setProducts([]);
     setAuditLogs([]);
     setActiveRequests([]);
     setCompletedRequests([]);
@@ -145,7 +130,7 @@ export default function AdminPage() {
       />
 
       {/* ── 3. Product Management ── */}
-      {isLoadingProducts ? (
+      {catalogStatus === 'loading' ? (
         <div className="admin-card admin-muted" style={{ padding: '14px' }}>
           Loading products...
         </div>

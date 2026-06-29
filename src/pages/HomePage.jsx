@@ -1,47 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import MaterialFilter from '../components/MaterialFilter.jsx';
 import PriceToggle from '../components/PriceToggle.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 import ProductDetailModal from '../components/ProductDetailModal.jsx';
 import SearchBar from '../components/SearchBar.jsx';
-import { fetchCatalog } from '../services/productService.js';
-import { prepareProductsForSearch, searchProducts } from '../utils/searchEngine.js';
+import { useCatalog } from '../contexts/CatalogContext.jsx';
+import { searchProducts } from '../utils/searchEngine.js';
 
 export default function HomePage() {
-  const [products, setProducts] = useState([]);
+  const { products, status, error } = useCatalog();
   const [query, setQuery] = useState('');
   const [priceMode, setPriceMode] = useState('W');
   const [activeMaterial, setActiveMaterial] = useState(null);
-  const [status, setStatus] = useState('loading');
-  const [errorMessage, setErrorMessage] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadProducts() {
-      try {
-        setStatus('loading');
-        const fetchedProducts = await fetchCatalog();
-
-        if (!isMounted) return;
-
-        setProducts(prepareProductsForSearch(fetchedProducts));
-        setStatus('success');
-      } catch (error) {
-        if (!isMounted) return;
-
-        setErrorMessage(error.message || 'Unable to load products.');
-        setStatus('error');
-      }
-    }
-
-    loadProducts();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const results = useMemo(
     () => searchProducts(products, query, activeMaterial),
@@ -87,7 +58,7 @@ export default function HomePage() {
       {status === 'error' ? (
         <div className="catalog-state catalog-state-error" role="alert">
           <strong>Could not load products.</strong>
-          <span>{errorMessage}</span>
+          <span>{error}</span>
         </div>
       ) : null}
 
