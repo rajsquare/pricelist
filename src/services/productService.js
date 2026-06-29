@@ -68,20 +68,25 @@ function sortBySr(list) {
 
 // Read-modify-write the SINGLE snapshot doc. Costs 1 read (one document),
 // never N. Used for create/update/delete.
+// Preserves the existing version field — does NOT increment it.
 async function patchCatalog(transform) {
   const ref = doc(db, CATALOG_DOC);
   const snap = await getDoc(ref); // 1 read
-  const current = snap.exists() ? (snap.data().products ?? []) : [];
+  const data = snap.exists() ? snap.data() : {};
+  const current = data.products ?? [];
+  const existingVersion = data.version ?? 0;
   const next = sortBySr(transform(current.slice()));
 
   await setDoc(ref, {
     products: next,
+    version: existingVersion,
     updatedAt: Date.now(),
   });
 }
 
 // Full rebuild from the collection (N reads). Admin-only / rare:
 // used by the Sync button and as a one-time migration to backfill ids.
+// Reads the existing version, increments it by 1, and writes atomically.
 async function rebuildCatalogSnapshot() {
   const q = query(collection(db, PRODUCTS_COLLECTION), orderBy('sr', 'asc'));
   const snapshot = await getDocs(q);
@@ -93,8 +98,16 @@ async function rebuildCatalogSnapshot() {
     }),
   );
 
-  await setDoc(doc(db, CATALOG_DOC), {
+  const catalogRef = doc(db, CATALOG_DOC);
+  const existingSnap = await getDoc(catalogRef);
+  const existingVersion = existingSnap.exists()
+    ? (existingSnap.data().version ?? 0)
+    : 0;
+  const nextVersion = existingVersion + 1;
+
+  await setDoc(catalogRef, {
     products,
+    version: nextVersion,
     updatedAt: Date.now(),
   });
 }
@@ -292,9 +305,16 @@ export async function replaceAllProducts(products) {
     },
   });
 
-  // Write snapshot straight from memory — no catalog read needed.
-  await setDoc(doc(db, CATALOG_DOC), {
+  // Write snapshot straight from memory — preserve existing version (no increment for CSV import).
+  const catalogRef = doc(db, CATALOG_DOC);
+  const existingCatalogSnap = await getDoc(catalogRef);
+  const existingVersion = existingCatalogSnap.exists()
+    ? (existingCatalogSnap.data().version ?? 0)
+    : 0;
+
+  await setDoc(catalogRef, {
     products: sortBySr(inserted.map(toCatalogEntry)),
+    version: existingVersion,
     updatedAt: Date.now(),
   });
 
