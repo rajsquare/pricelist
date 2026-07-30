@@ -661,13 +661,54 @@ textarea {
   text-align: center;
 }
 
-.image-delete-button {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
+.gallery-item-actions {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+}
+
+.image-delete-button,
+.image-download-button {
+  flex: 1;
   min-height: 32px;
   padding: 6px 9px;
   font-size: 12px;
+}
+
+.image-dropzone {
+  display: grid;
+  place-items: center;
+  min-height: 84px;
+  padding: 16px 12px;
+  border: 1.5px dashed #cfd5de;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #667085;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.image-dropzone:hover {
+  border-color: #b0b8cc;
+}
+
+.image-dropzone--active {
+  border-color: #2f3f64;
+  background: rgba(47, 63, 100, 0.06);
+  color: #2f3f64;
+}
+
+.image-dropzone input[type='file'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .upload-progress {
