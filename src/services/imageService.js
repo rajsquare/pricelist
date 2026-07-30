@@ -12,7 +12,7 @@ import {
 import { db } from './firebase.js';
 
 const PRODUCT_IMAGES_COLLECTION = 'productImages';
-const MAX_PRODUCT_IMAGES = 5;
+export const MAX_PRODUCT_IMAGES = 10;
 
 function normalizeImage(documentSnapshot) {
   return {
@@ -38,11 +38,11 @@ export async function fetchProductImages(sr) {
     });
 }
 
-export async function addProductImage(sr, imageUrl) {
+export async function addProductImage(sr, imageUrl, fileName) {
   const existingCount = await getProductImageCount(sr);
 
   if (existingCount >= MAX_PRODUCT_IMAGES) {
-    throw new Error('This product already has 5 images.');
+    throw new Error(`This product already has ${MAX_PRODUCT_IMAGES} images.`);
   }
 
   const numericSr = Number(sr);
@@ -51,6 +51,7 @@ export async function addProductImage(sr, imageUrl) {
     sr: numericSr,
     imageUrl,
     createdAt: serverTimestamp(),
+    ...(fileName ? { fileName } : {}),
   });
 
   return {
@@ -58,6 +59,7 @@ export async function addProductImage(sr, imageUrl) {
     sr: numericSr,
     imageUrl,
     createdAt: null,
+    ...(fileName ? { fileName } : {}),
   };
 }
 
