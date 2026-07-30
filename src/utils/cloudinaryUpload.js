@@ -45,7 +45,10 @@ export function uploadProductImage(file, onProgress = () => {}) {
     request.onload = () => {
       if (request.status >= 200 && request.status < 300) {
         const response = JSON.parse(request.responseText);
-        resolve(response.secure_url);
+        const originalFileName = response.original_filename
+          ? `${response.original_filename}${response.format ? `.${response.format}` : ''}`
+          : '';
+        resolve({ url: response.secure_url, fileName: originalFileName });
         return;
       }
 
@@ -58,4 +61,24 @@ export function uploadProductImage(file, onProgress = () => {}) {
 
     request.send(formData);
   });
+}
+
+export async function downloadImage(imageUrl, fileName) {
+  const response = await fetch(imageUrl);
+
+  if (!response.ok) {
+    throw new Error('Image download failed.');
+  }
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const derivedName = imageUrl.split('/').pop()?.split('?')[0] || 'product-image';
+
+  const link = document.createElement('a');
+  link.href = objectUrl;
+  link.download = fileName || derivedName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(objectUrl);
 }
