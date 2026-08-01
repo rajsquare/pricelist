@@ -9,6 +9,7 @@ import {
   runTransaction,
   setDoc,
   updateDoc,
+  where,
   writeBatch,
 } from 'firebase/firestore';
 import { db } from './firebase.js';
@@ -155,6 +156,33 @@ export async function getProductById(productId) {
   return snap.exists() ? normalizeProduct(snap) : null;
 }
 
+// Looks up a product by its serial number directly against the source-of-truth
+// `products` collection. Used as a recovery path when a caller only has a
+// catalog-snapshot entry that predates snapshot ids (see resolveProductId).
+export async function getProductBySr(sr) {
+  const numericSr = Number(sr);
+  if (!Number.isFinite(numericSr)) return null;
+
+  const q = query(collection(db, PRODUCTS_COLLECTION), where('sr', '==', numericSr));
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) return null;
+
+  return normalizeProduct(snapshot.docs[0]);
+}
+
+// Returns a definitive Firestore document id for a product, even if the
+// caller only has a stale catalog-snapshot entry missing `id` (a legacy gap
+// from before snapshot entries always carried an id). Falls back to an sr
+// lookup against the real collection so edit/update/price-request flows
+// self-heal instead of mistakenly treating an existing product as new.
+export async function resolveProductId(product) {
+  if (product?.id) return product.id;
+  if (product?.sr == null) return null;
+
+  const found = await getProductBySr(product.sr);
+  return found ? found.id : null;
+}
+
 export async function createProduct(productFields) {
   const fields = { ...productFields };
   delete fields.sr;
@@ -228,9 +256,13 @@ export async function updateProduct(productId, product) {
 
   const entry = toCatalogEntry({ id: productId, ...after });
   await patchCatalog((list) => {
-    const exists = list.some((p) => p.id === productId);
+    // Legacy snapshot entries can be missing `id`; fall back to matching by
+    // sr for those so the stale entry is replaced (and its id backfilled)
+    // instead of a duplicate being appended.
+    const matches = (p) => p.id === productId || (!p.id && Number(p.sr) === Number(after.sr));
+    const exists = list.some(matches);
     return exists
-      ? list.map((p) => (p.id === productId ? entry : p))
+      ? list.map((p) => (matches(p) ? entry : p))
       : [...list, entry];
   });
 
