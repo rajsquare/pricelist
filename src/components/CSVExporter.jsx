@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { fetchCatalog } from '../services/productService.js';
+import { useCatalog } from '../contexts/CatalogContext.jsx';
 import { productsToCsv } from '../utils/csvProducts.js';
 
 export default function CSVExporter() {
+  const { products } = useCatalog();
   const [isExporting, setIsExporting] = useState(false);
 
-  async function handleExport() {
+  function handleExport() {
     try {
       setIsExporting(true);
-      const products = await fetchCatalog();
       const csv = productsToCsv(products);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
